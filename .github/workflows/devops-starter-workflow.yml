@@ -29,16 +29,16 @@ jobs:
     - name: npm install and build
       continue-on-error: false
       run: |
-        cd Application
+        cd Jenk
         npm install
         npm run build --if-present
 
     - name: Run unit tests
       continue-on-error: false
       run: |
-        cd Tests
+        cd Jenk
         npm install
-        gulp unittest
+        npm run test
 
     - name: Creating artifact directories
       run: |
@@ -48,7 +48,7 @@ jobs:
     # Archive build artifact
     - name: Archive Application
       run: |
-        zip -qq -r ./buildartifacts/Application.zip ./Application
+        zip -qq -r ./buildartifacts/Jenkk.zip ./Jenkk
 
     # Uploading application to build artifact
     - name: Upload Application to Build Artifact
@@ -88,7 +88,7 @@ jobs:
     # Uzipping build artifacts
     - name: unzipping build artifact
       run: |
-        unzip -qq ./buildartifacts/Application.zip -d .
+        unzip -qq ./buildartifacts/Jenkk.zip -d .
 
   # Downloading Arm Templates
     - name: Download an Arm template
@@ -125,26 +125,3 @@ jobs:
       with: 
         app-name: ${{ env.AZURE_WEBAPP_NAME }}
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
-
-  # Job to run functional tests
-  FunctionalTests:
-    name: Run Functional tests
-    runs-on: windows-latest
-    needs: Deploy
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Use Node.js ${{ env.NODE_VERSION }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-
-    # Run functional tests
-    - name: Run Functional Tests
-      continue-on-error: false
-      run: |
-        cd Application
-        npm install
-        cd ../Tests
-        npm install
-        gulp functionaltest --webAppUrl https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/
