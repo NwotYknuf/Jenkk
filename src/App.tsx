@@ -4,8 +4,8 @@ import Queue from "./Components/Queue/Queue";
 import Hold from "./Components/Hold/Hold";
 import BoardDisplay from "./Components/Board/BoardRender";
 
-import { Board } from './jenk/board';
-import { Piece } from './jenk/piece';
+import { Board } from './jenkk/board';
+import { Piece } from './jenkk/piece';
 import { defaultController } from './constants'
 
 let gameInfo = defaultController.init();

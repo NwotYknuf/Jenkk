@@ -1,4 +1,4 @@
-import { Piece } from '../../jenk/piece';
+import { Piece } from '../../jenkk/piece';
 import PieceDisplay from '../Piece/PieceRenderer';
 import './Hold.css'
 

@@ -1,5 +1,5 @@
 import './Cell.css';
-import { Mino, MinoType } from '../../jenk/mino';
+import { Mino, MinoType } from '../../jenkk/mino';
 import React from 'react';
 
 const colors: Map<MinoType, string> = new Map<MinoType, string>([

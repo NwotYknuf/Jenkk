@@ -1,5 +1,5 @@
 import React from "react";
-import { Mino } from "../../jenk/mino";
+import { Mino } from "../../jenkk/mino";
 import Cell from "../Cell/Cell";
 import './Col.css';
 

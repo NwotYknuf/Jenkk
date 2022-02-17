@@ -1,6 +1,6 @@
 import './Queue.css'
 import PieceDisplay from "../Piece/PieceRenderer";
-import { Piece } from '../../jenk/piece';
+import { Piece } from '../../jenkk/piece';
 
 function Queue(props: { queue: Piece[] }) {
     return <div className='queue'>{

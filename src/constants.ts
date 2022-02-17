@@ -1,13 +1,13 @@
-import { Board } from "./jenk/board";
-import { Controller } from "./jenk/controllers/controller";
-import { GameState } from "./jenk/gameState";
-import { BagGenerator } from "./jenk/generators/bagGenerator";
-import { Generator } from "./jenk/generators/generator";
-import { LCG } from "./jenk/generators/LCG";
-import { InputController } from "./jenk/inputController";
-import { MinoType } from "./jenk/mino";
-import { Piece, RotationState } from "./jenk/piece";
-import { Kick, KickTable, SRS } from "./jenk/rotationSystems/srs";
+import { Board } from "./jenkk/board";
+import { Controller } from "./jenkk/controllers/controller";
+import { GameState } from "./jenkk/gameState";
+import { BagGenerator } from "./jenkk/generators/bagGenerator";
+import { Generator } from "./jenkk/generators/generator";
+import { LCG } from "./jenkk/generators/LCG";
+import { InputController } from "./jenkk/inputController";
+import { MinoType } from "./jenkk/mino";
+import { Piece, RotationState } from "./jenkk/piece";
+import { Kick, KickTable, SRS } from "./jenkk/rotationSystems/srs";
 
 const SRS_Kicks: KickTable = new Map<RotationState, Map<RotationState, Kick[]>>([
     [RotationState.flat, new Map<RotationState, Kick[]>([

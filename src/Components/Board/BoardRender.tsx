@@ -1,4 +1,4 @@
-import { Board } from '../../jenk/board';
+import { Board } from '../../jenkk/board';
 import Col from '../Col/Col'
 import './BoardRender.css'
 
