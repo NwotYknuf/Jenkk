@@ -29,14 +29,14 @@ jobs:
     - name: npm install and build
       continue-on-error: false
       run: |
-        cd Jenk
+        cd Jenkk
         npm install
         npm run build --if-present
 
     - name: Run unit tests
       continue-on-error: false
       run: |
-        cd Jenk
+        cd Jenkk
         npm install
         npm run test
 
