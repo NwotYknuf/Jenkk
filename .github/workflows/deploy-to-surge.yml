@@ -14,13 +14,13 @@ jobs:
           node-version: "16.14.0"
 
       - name: Install packages
-      - run: npm install
+        run: npm install
 
       - name: Build the app
-      - run: npm run build
+        run: npm run build
 
       - name: Install Surge
-      - run: npm install -g surge
+        run: npm install -g surge
 
       - name: Deploy to surge
-      - run: surge ./build jenkk.surge.sh --token ${{secrets.SURGE_TOKEN}}
+        run: surge ./build jenkk.surge.sh --token ${{secrets.SURGE_TOKEN}}
