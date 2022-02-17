@@ -1,4 +1,4 @@
-name: Build and Deploy node Express app to azure
+name: Build and Deploy to azure
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: "Jenkk"    # set this to your application's name
-  AZURE_WEBAPP_PACKAGE_PATH: "Application"      # set this to the path to your web app project, defaults to the repository root
+  AZURE_WEBAPP_PACKAGE_PATH: "Jenkk"      # set this to the path to your web app project, defaults to the repository root
   NODE_VERSION: '16.14.0'                        # set this to the node version to use
   RESOURCEGROUPNAME: "Jenk"
   LOCATION: "West Europe"
@@ -46,12 +46,12 @@ jobs:
         mkdir deploymenttemplates
 
     # Archive build artifact
-    - name: Archive Application
+    - name: Archive Jenkk
       run: |
         zip -qq -r ./buildartifacts/Jenkk.zip ./Jenkk
 
     # Uploading application to build artifact
-    - name: Upload Application to Build Artifact
+    - name: Upload Jenkk to Build Artifact
       continue-on-error: false
       uses: actions/upload-artifact@v2
       with:
