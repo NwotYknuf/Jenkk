@@ -27,9 +27,22 @@ describe("Sequence generator", () => {
         }
     });
 
+    it("Spawns a piece", () => {
+        expect(sequenceGenerator.spawnPiece).toThrow();
+        const piece = sequenceGenerator.spawnPiece();
+        expect(piece.type).toBe(MinoType.J);
+        expect(piece.x).toBe(sequenceGenerator.spawnX);
+        expect(piece.y).toBe(sequenceGenerator.spawnY);
+    })
+
+    it("Can't be refilled", () => {
+        expect(sequenceGenerator.canRefill()).toBe(false);
+        expect(sequenceGenerator.refill).toThrow();
+    });
+
     it("Return a preview", () => {
         expect(sequenceGenerator.getPreview()).toEqual(queue.slice(0, 2));
-    })
+    });
 
     it("Can make a copy of itseld", () => {
         const copy = sequenceGenerator.clone() as SequenceGenerator;

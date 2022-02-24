@@ -70,4 +70,9 @@ describe("Piece", () => {
 
     });
 
+    it("Copies a shape", () => {
+        const shape = [{ x: -1, y: 1 }, { x: -1, y: 0 }, { x: 0, y: 0 }, { x: 1, y: 0 }];
+        expect(Piece.copyShape(shape)).toEqual(shape);
+    });
+
 });
