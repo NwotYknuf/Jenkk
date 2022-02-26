@@ -28,7 +28,7 @@ const defaultControls: Map<string, Control> = new Map<string, Control>([
 
 type KeyStatus = { pressed: boolean, pressedLastFrame: boolean, time: number }
 
-class InputController {
+class InputController<StateInfo, ClearInfo> {
 
     private DAS_Charge: number = 0;
     private ARR_Active: boolean = false;
@@ -102,32 +102,32 @@ class InputController {
         this.ARR_Active = false;
     }
 
-    private ARR_right(controller: Controller): void {
+    private ARR_right(controller: Controller<StateInfo, ClearInfo>): void {
         if (this.ARR_Active) {
-            while (this.ARR_Charge > this.ARR && controller.movePiece(1, 0)) {
+            while (this.ARR_Charge > this.ARR && controller.movePiece(1, 0, controller.state.currentPiece)) {
                 this.ARR_Charge -= this.ARR;
             }
         }
     }
 
-    private ARR_left(controller: Controller): void {
+    private ARR_left(controller: Controller<StateInfo, ClearInfo>): void {
         if (this.ARR_Active) {
-            while (this.ARR_Charge > this.ARR && controller.movePiece(-1, 0)) {
+            while (this.ARR_Charge > this.ARR && controller.movePiece(-1, 0, controller.state.currentPiece)) {
                 this.ARR_Charge -= this.ARR;
             }
         }
     }
 
-    public update(controller: Controller): void {
+    public update(controller: Controller<StateInfo, ClearInfo>): void {
 
         let elapsedTime = Date.now() - this.lastTick;
 
         if (this.getKeyDown(Control.left)) {
-            controller.movePiece(-1, 0);
+            controller.movePiece(-1, 0, controller.state.currentPiece);
             this.stopDAS();
         }
         if (this.getKeyDown(Control.right)) {
-            controller.movePiece(1, 0);
+            controller.movePiece(1, 0, controller.state.currentPiece);
             this.stopDAS();
         }
 
@@ -137,7 +137,7 @@ class InputController {
 
         if (this.keyPressed(Control.softDrop)) {
             this.SDR_Charge += elapsedTime;
-            while (this.SDR_Charge > this.SDR && controller.movePiece(0, -1)) {
+            while (this.SDR_Charge > this.SDR && controller.movePiece(0, -1, controller.state.currentPiece)) {
                 this.SDR_Charge -= this.SDR;
             }
         }

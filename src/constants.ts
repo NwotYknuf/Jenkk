@@ -1,9 +1,11 @@
 import { Board } from "./jenkk/board";
-import { Controller } from "./jenkk/controllers/controller";
+import { BasicController, BasicStateInfo } from "./jenkk/controllers/basic-controller";
 import { GameState } from "./jenkk/game-state";
 import { BagGenerator } from "./jenkk/generators/bag-generator";
+import { CompositeGenerator } from "./jenkk/generators/composite-generator";
 import { Generator } from "./jenkk/generators/generator";
 import { LCG } from "./jenkk/generators/lcg";
+import { SequenceGenerator } from "./jenkk/generators/sequence-generator";
 import { InputController } from "./jenkk/input-controller";
 import { MinoType } from "./jenkk/mino";
 import { Piece, RotationState } from "./jenkk/piece";
@@ -65,14 +67,14 @@ const sevenBag: Piece[] = [
     new Piece(0, 0, 0, RotationState.flat, MinoType.T, [{ x: -1, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 1 }, { x: 1, y: 0 }])
 ];
 
-const sevenBagGenerator: BagGenerator = new BagGenerator(
+const sevenBagGenerator = new BagGenerator(
     4, 17, 5, [],
     Generator.cloneQueue(sevenBag),
     new LCG(1)
 );
 
-const defaultController = new Controller(
-    new InputController(),
+const defaultController = new BasicController(
+    new InputController<BasicStateInfo, void>(),
     new GameState(
         new Board(10, 20),
         sevenBagGenerator.clone(),
