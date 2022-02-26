@@ -1,7 +1,7 @@
 import { MinoType } from "../mino";
 import { Piece, RotationState } from "../piece";
 import { Generator } from "./generator";
-import { SequenceGenerator } from "./sequenceGenerator";
+import { SequenceGenerator } from "./sequence-generator";
 
 describe("Sequence generator", () => {
 
@@ -34,11 +34,6 @@ describe("Sequence generator", () => {
         expect(piece.x).toBe(sequenceGenerator.spawnX);
         expect(piece.y).toBe(sequenceGenerator.spawnY);
     })
-
-    it("Can't be refilled", () => {
-        expect(sequenceGenerator.canRefill()).toBe(false);
-        expect(sequenceGenerator.refill).toThrow();
-    });
 
     it("Return a preview", () => {
         expect(sequenceGenerator.getPreview()).toEqual(queue.slice(0, 2));

@@ -1,7 +1,7 @@
 import { Board } from "./board";
 import { GameState } from "./game-state";
 import { Generator } from "./generators/generator";
-import { SequenceGenerator } from "./generators/sequenceGenerator";
+import { SequenceGenerator } from "./generators/sequence-generator";
 import { MinoType } from "./mino";
 import { Piece, RotationState } from "./piece";
 

@@ -12,17 +12,6 @@ class SequenceGenerator extends Generator {
         super(spawnX, spawnY, nbPreviewPieces, queue);
     }
 
-    public refill(): void {
-        throw new Error('Tried to refill a SequenceGenerator');
-    }
-
-    public canRefill(): boolean {
-        return false;
-    }
-    public shouldRefill(): boolean {
-        throw new Error('called shouldRefill on a SequenceGenerator');
-    }
-
     public clone(): Generator {
         const clonedQueue = Generator.cloneQueue(this.queue)
         return new SequenceGenerator(this.spawnX, this.spawnY, this.nbPreviewPieces, clonedQueue);
