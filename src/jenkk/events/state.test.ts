@@ -1,9 +1,9 @@
 
-import { Subject } from "./subject";
+import { State } from "./state";
 
-describe("Subject", () => {
+describe("State", () => {
 
-    const subject = new Subject<Number>();
+    const subject = new State<Number>(0, false);
 
     it("Can have subscribers", () => {
 
@@ -28,14 +28,16 @@ describe("Subject", () => {
         expect(eventA).toBeCalledTimes(0);
         expect(eventB).toBeCalledTimes(0);
 
-        subject.notify(5);
+        subject.setValue(5);
+        subject.notify();
 
         expect(eventA).toBeCalledTimes(1);
         expect(eventB).toBeCalledTimes(1);
 
         unsubA();
 
-        subject.notify(5);
+        subject.setValue(5);
+        subject.notify();
 
         expect(eventA).toBeCalledTimes(1);
         expect(eventB).toBeCalledTimes(2);

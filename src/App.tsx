@@ -8,26 +8,38 @@ import { Board } from './jenkk/board';
 import { Piece } from './jenkk/piece';
 import { defaultController } from './constants'
 
-let gameInfo = defaultController.init();
+
+defaultController.init();
 
 function App() {
 
-  const [board, setBoard] = useState<Board>(gameInfo.board.value);
-  const [queue, setQueue] = useState<Piece[]>(gameInfo.queue.value);
-  const [heldPiece, setHeldPiece] = useState<Piece | undefined>(gameInfo.held.value);
+  const [board, setBoard] = useState<Board>(defaultController.boardWithPieceAndGhost);
+  const [queue, setQueue] = useState<Piece[]>(defaultController.queue);
+  const [heldPiece, setHeldPiece] = useState<Piece | undefined>(defaultController.heldPiece);
+
+  useEffect(() => {
+    defaultController.boardState.subscribe({
+      update: (board) => {
+        setBoard(board);
+      }
+    });
+
+    defaultController.queueState.subscribe({
+      update: (queue) => {
+        setQueue(queue);
+      }
+    });
+
+    defaultController.heldPieceState.subscribe({
+      update: (heldPiece) => {
+        setHeldPiece(heldPiece);
+      }
+    });
+  }, [])
 
   useEffect(() => {
     setInterval(() => {
-      gameInfo = defaultController.update();
-      if (gameInfo.board.updated) {
-        setBoard(gameInfo.board.value);
-      }
-      if (gameInfo.queue.updated) {
-        setQueue(gameInfo.queue.value);
-      }
-      if (gameInfo.held.updated) {
-        setHeldPiece(gameInfo.held.value);
-      }
+      defaultController.update();
     }, 1 / 120.0);
   }, [board, queue, heldPiece]);
 

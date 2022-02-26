@@ -1,4 +1,4 @@
-import { Controller } from "./controllers/controller";
+import { BasicController } from "./controllers/controller";
 
 enum Control {
     left,
@@ -28,7 +28,7 @@ const defaultControls: Map<string, Control> = new Map<string, Control>([
 
 type KeyStatus = { pressed: boolean, pressedLastFrame: boolean, time: number }
 
-class InputController<StateInfo, ClearInfo> {
+class InputController {
 
     private DAS_Charge: number = 0;
     private ARR_Active: boolean = false;
@@ -102,32 +102,32 @@ class InputController<StateInfo, ClearInfo> {
         this.ARR_Active = false;
     }
 
-    private ARR_right(controller: Controller<StateInfo, ClearInfo>): void {
+    private ARR_right(controller: BasicController): void {
         if (this.ARR_Active) {
-            while (this.ARR_Charge > this.ARR && controller.movePiece(1, 0, controller.state.currentPiece)) {
+            while (this.ARR_Charge > this.ARR && controller.movePiece(1, 0)) {
                 this.ARR_Charge -= this.ARR;
             }
         }
     }
 
-    private ARR_left(controller: Controller<StateInfo, ClearInfo>): void {
+    private ARR_left(controller: BasicController): void {
         if (this.ARR_Active) {
-            while (this.ARR_Charge > this.ARR && controller.movePiece(-1, 0, controller.state.currentPiece)) {
+            while (this.ARR_Charge > this.ARR && controller.movePiece(-1, 0)) {
                 this.ARR_Charge -= this.ARR;
             }
         }
     }
 
-    public update(controller: Controller<StateInfo, ClearInfo>): void {
+    public update(controller: BasicController): void {
 
         let elapsedTime = Date.now() - this.lastTick;
 
         if (this.getKeyDown(Control.left)) {
-            controller.movePiece(-1, 0, controller.state.currentPiece);
+            controller.movePiece(-1, 0);
             this.stopDAS();
         }
         if (this.getKeyDown(Control.right)) {
-            controller.movePiece(1, 0, controller.state.currentPiece);
+            controller.movePiece(1, 0);
             this.stopDAS();
         }
 
@@ -137,7 +137,7 @@ class InputController<StateInfo, ClearInfo> {
 
         if (this.keyPressed(Control.softDrop)) {
             this.SDR_Charge += elapsedTime;
-            while (this.SDR_Charge > this.SDR && controller.movePiece(0, -1, controller.state.currentPiece)) {
+            while (this.SDR_Charge > this.SDR && controller.movePiece(0, -1)) {
                 this.SDR_Charge -= this.SDR;
             }
         }

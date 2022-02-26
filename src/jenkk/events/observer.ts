@@ -1,7 +1,7 @@
 
-interface Observer<E> {
+interface Observer<T> {
 
-    update(event: E): void;
+    update(value: T): void;
 
 }
 

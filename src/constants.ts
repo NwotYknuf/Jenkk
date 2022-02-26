@@ -1,5 +1,5 @@
 import { Board } from "./jenkk/board";
-import { BasicController, BasicStateInfo } from "./jenkk/controllers/basic-controller";
+import { BasicController, BasicStateInfo } from "./jenkk/controllers/controller";
 import { GameState } from "./jenkk/game-state";
 import { BagGenerator } from "./jenkk/generators/bag-generator";
 import { CompositeGenerator } from "./jenkk/generators/composite-generator";
@@ -74,7 +74,7 @@ const sevenBagGenerator = new BagGenerator(
 );
 
 const defaultController = new BasicController(
-    new InputController<BasicStateInfo, void>(),
+    new InputController(),
     new GameState(
         new Board(10, 20),
         sevenBagGenerator.clone(),

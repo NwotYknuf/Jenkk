@@ -6,13 +6,7 @@ import { Generator } from './generators/generator';
 
 class GameState {
 
-    public currentPiece: Piece | undefined;
-    public heldPiece: Piece | undefined;
-
-    constructor(public board: Board, public generator: Generator, currentPiece?: Piece, heldPiece?: Piece) {
-        this.currentPiece = currentPiece;
-        this.heldPiece = heldPiece;
-    }
+    constructor(public board: Board, public generator: Generator, public currentPiece?: Piece | undefined, public heldPiece?: Piece | undefined) { }
 
     public clone(): GameState {
         return new GameState(this.board.clone(), this.generator.clone(), this.currentPiece?.clone(), this.heldPiece?.clone())
