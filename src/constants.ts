@@ -1,10 +1,10 @@
 import { Board } from "./jenkk/board";
 import { Controller } from "./jenkk/controllers/controller";
-import { GameState } from "./jenkk/gameState";
-import { BagGenerator } from "./jenkk/generators/bagGenerator";
+import { GameState } from "./jenkk/game-state";
+import { BagGenerator } from "./jenkk/generators/bag-generator";
 import { Generator } from "./jenkk/generators/generator";
-import { LCG } from "./jenkk/generators/LCG";
-import { InputController } from "./jenkk/inputController";
+import { LCG } from "./jenkk/generators/lcg";
+import { InputController } from "./jenkk/input-controller";
 import { MinoType } from "./jenkk/mino";
 import { Piece, RotationState } from "./jenkk/piece";
 import { Kick, KickTable, SRS } from "./jenkk/rotationSystems/srs";

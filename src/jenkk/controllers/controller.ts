@@ -1,12 +1,12 @@
-import { GameState } from "../gameState";
-import { InputController as InputManager } from "../inputController";
-import { RotationSystem } from "../rotationSystems/rotationSystem";
+import { GameState } from "../game-state";
+import { InputController as InputManager } from "../input-controller";
+import { RotationSystem } from "../rotationSystems/rotation-system";
 import { Piece, RotationState } from '../piece';
 import { Mino, MinoType } from '../mino';
 import { Board } from "../board";
 import { Generator } from "../generators/generator";
-import { canRefill, CanReffil } from "../generators/canRefill";
-import { HasRNG, hasRNG } from "../generators/hasRNG";
+import { canRefill, CanReffil } from "../generators/can-refill";
+import { HasRNG, hasRNG } from "../generators/has-rng";
 
 /*
  * A basic game controller with an input controller and a rotation system

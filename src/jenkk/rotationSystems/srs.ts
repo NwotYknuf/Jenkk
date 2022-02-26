@@ -1,7 +1,7 @@
 import { Board } from "../board";
 import { MinoType } from "../mino";
 import { Piece, RotationState } from "../piece";
-import { RotationFunction, RotationSystem } from "./rotationSystem";
+import { RotationFunction, RotationSystem } from "./rotation-system";
 
 type Kick = { x: number, y: number };
 

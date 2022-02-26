@@ -1,10 +1,10 @@
 import { MinoType } from "../mino";
 import { Piece, RotationState } from "../piece";
 import { Generator } from "./generator";
-import { BagGenerator } from "./bagGenerator";
-import { LCG } from "./LCG";
+import { BagGenerator } from "./bag-generator";
+import { LCG } from "./lcg";
 
-describe("Sequence generator", () => {
+describe("Bag generator", () => {
 
     const first = new Piece(0, 0, 0, RotationState.flat, MinoType.J, [{ x: 0, y: 0 }]);
     const second = new Piece(0, 0, 0, RotationState.flat, MinoType.L, [{ x: 1, y: 1 }]);

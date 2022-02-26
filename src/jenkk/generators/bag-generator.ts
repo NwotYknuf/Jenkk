@@ -1,8 +1,8 @@
 import { Piece } from "../piece";
-import { CanReffil } from "./canRefill";
+import { CanReffil } from "./can-refill";
 import { Generator } from "./generator"
-import { HasRNG } from "./hasRNG";
-import { LCG } from "./LCG";
+import { HasRNG } from "./has-rng";
+import { LCG } from "./lcg";
 
 /*
  * A random bag generator

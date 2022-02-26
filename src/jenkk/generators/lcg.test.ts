@@ -1,4 +1,4 @@
-import { LCG } from "./LCG";
+import { LCG } from "./lcg";
 
 describe("Linear congruential generator", () => {
 
