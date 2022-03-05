@@ -1,24 +1,46 @@
-import { Board } from "../board";
+import { Game } from "../controllers/game";
 import { MinoType } from "../mino";
 import { Piece, RotationState } from "../piece";
-import { RotationFunction, RotationSystem } from "./rotation-system";
+import { RotationSystem, RotationType } from "./rotation-system";
 
 type Kick = { x: number, y: number };
-
 type KickTable = Map<RotationState, Map<RotationState, Kick[]>>;
+type RotationFunction = () => void;
 
 class SRS extends RotationSystem {
 
+    private rotationFunctions: Map<RotationType, RotationFunction>;
+
     constructor(private kickTable: KickTable, private IkickTable: KickTable) {
         super();
+
+        this.rotationFunctions = new Map<RotationType, RotationFunction>([
+            [RotationType.CCW, Piece.prototype.rotateCCW],
+            [RotationType.CW, Piece.prototype.rotateCW],
+            [RotationType._180, Piece.prototype.rotate180]
+        ]);
     }
 
-    private rotate(board: Board, piece: Piece, nextRotation: RotationState, rotate: RotationFunction): [boolean, Piece] {
-        let currentPiece = piece.clone();
-        const oldPiece = piece.clone();
+    public rotate(game: Game, rotation: RotationType): boolean {
 
-        const kickTable = currentPiece.type === MinoType.I ? this.IkickTable : this.kickTable;
-        const currentRotation = currentPiece.rotation;
+        if (!game.currentPiece) {
+            throw new Error("Called rotate without a current piece");
+        }
+
+        const pos = game.currentPiecePosition.clone();
+        const piece = game.currentPiece.clone();
+        const posSnapshot = pos.save();
+
+        const rotationFunction = this.rotationFunctions.get(rotation);
+
+        if (!rotationFunction) {
+            throw new Error(`No rotation function found`);
+        }
+
+        const currentRotation = piece.rotation;
+        rotationFunction.call(piece);
+        const nextRotation = piece.rotation;
+        const kickTable = piece.type === MinoType.I ? this.IkickTable : this.kickTable;
         const shifts = kickTable.get(currentRotation)?.get(nextRotation);
 
         if (!shifts) {
@@ -27,36 +49,20 @@ class SRS extends RotationSystem {
 
         //try all SRS kicks
         for (let i = 0; i < shifts.length; i++) {
-            rotate.call(currentPiece);
-            currentPiece.x += shifts[i].x;
-            currentPiece.y += shifts[i].y;
-            if (!board.collision(currentPiece)) {
-                return [true, currentPiece];
+            pos.x += shifts[i].x;
+            pos.y += shifts[i].y;
+            if (!game.board.collision(piece, pos)) {
+                game.currentPiece = piece;
+                game.currentPiecePosition = pos;
+                return true;
             }
             //reset the piece for next iteration
-            currentPiece = oldPiece.clone();
+            pos.restore(posSnapshot);
         }
 
-        return [false, oldPiece];
+        return false;
     }
 
-    public rotateCCW(board: Board, piece: Piece): [boolean, Piece] {
-        let nextRotation = (piece.rotation - 1);
-        if (nextRotation < 0) {
-            nextRotation += 4;
-        }
-        return this.rotate(board, piece, nextRotation, Piece.prototype.rotateCCW);
-    }
-
-    public rotateCW(board: Board, piece: Piece): [boolean, Piece] {
-        const nextRotation = (piece.rotation + 1) % 4;
-        return this.rotate(board, piece, nextRotation, piece.rotateCW);
-    }
-
-    public rotate180(board: Board, piece: Piece): [boolean, Piece] {
-        const nextRotation = (piece.rotation + 2) % 4;
-        return this.rotate(board, piece, nextRotation, piece.rotate180);
-    }
 }
 
 export { SRS, type KickTable, type Kick }

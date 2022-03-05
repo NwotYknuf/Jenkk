@@ -1,280 +1,206 @@
-import { GameState } from "../game-state";
-import { InputController as InputManager } from "../input-controller";
-import { RotationSystem } from "../rotationSystems/rotation-system";
-import { Piece, RotationState } from '../piece';
-import { Mino, MinoType } from '../mino';
-import { Board } from "../board";
-import { Generator } from "../generators/generator";
-import { canRefill, CanReffil } from "../generators/can-refill";
-import { HasRNG, hasRNG } from "../generators/has-rng";
-import { State } from "../events/state";
+import { RotationType } from "../rotationSystems/rotation-system";
+import { Game } from "./game";
 
-type UpdateComponent<T> = {
-    updated: boolean,
-    value: T
+enum Control {
+    left,
+    right,
+    softDrop,
+    hardDrop,
+    rotateCCW,
+    rotateCW,
+    rotate180,
+    hold,
+    reset,
+    skip
 }
 
-type BasicStateInfo = {
-    board: UpdateComponent<Board>
-    queue: UpdateComponent<Piece[]>
-    held: UpdateComponent<Piece | undefined>
-}
+type KeyStatus = { pressed: boolean, pressedLastFrame: boolean, time: number }
 
-class BasicController {
+class Controller {
 
-    public boardState: State<Board>;
-    public queueState: State<Piece[]>;
-    public heldPieceState: State<Piece | undefined>;
-    public currentPieceState: State<Piece | undefined>;
+    private DAS_Charge: number = 0;
+    private ARR_Active: boolean = false;
+    private ARR_Charge: number = 0;
+    private SDR_Charge: number = 0;
+    private lastTick: number = Date.now();
+    private pressedKeys: Map<Control, KeyStatus> = new Map<Control, KeyStatus>();
 
-    constructor(private inputManager: InputManager, private state: GameState, private rotationSystem: RotationSystem) {
-        this.boardState = new State<Board>(this.state.board, false);
-        this.queueState = new State<Piece[]>([], false);
-        this.heldPieceState = new State<Piece | undefined>(this.state.heldPiece, false);
-        this.currentPieceState = new State<Piece | undefined>(this.state.currentPiece, false);
+    constructor(private game: Game, private controlsMap: Map<string, Control>, private DAS: number, private ARR: number, private SDR: number) {
+
+        this.controlsMap.forEach((value, key) => {
+            this.pressedKeys.set(value, { pressed: false, pressedLastFrame: false, time: 0 });
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (!event.repeat) {
+                if (event.code && this.controlsMap.has(event.code)) {
+                    const control = this.controlsMap.get(event.code);
+                    if (control !== undefined) {
+                        let status = this.pressedKeys.get(control);
+                        if (status) {
+                            status.pressed = true;
+                            status.time = Date.now();
+                        }
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('keyup', (event) => {
+            if (event.code && this.controlsMap.has(event.code)) {
+                const control = this.controlsMap.get(event.code);
+                if (control !== undefined) {
+                    let status = this.pressedKeys.get(control);
+                    if (status) {
+                        status.pressed = false;
+                    }
+                }
+            }
+        });
+
+        this.game.refillQueue();
+        this.game.spawnPiece();
+        this.game.notifyObservers();
     }
 
-    public get board() {
-        return this.state.board;
-    }
+    private getKeyDown(control: Control): boolean {
 
-    public set board(board: Board) {
-        this.state.board = board;
-        this.boardState.changed();
-    }
-
-    public get currentPiece() {
-        return this.state.currentPiece;
-    }
-
-    public set currentPiece(piece: Piece | undefined) {
-        this.state.currentPiece = piece;
-        this.boardState.changed();
-    }
-
-    public get heldPiece() {
-        return this.state.heldPiece;
-    }
-
-    public set heldPiece(piece: Piece | undefined) {
-        this.state.heldPiece = piece;
-        this.heldPieceState.setValue(piece);
-    }
-
-    public get boardWithPieceAndGhost(): Board {
-        const ghost = this.ghostPiece;
-        const piece = this.currentPiece;
-
-        if (piece) {
-            return this.state.board.getBoardWithPiece(piece, ghost);
+        let status = this.pressedKeys.get(control);
+        if (status) {
+            return status.pressed && !status.pressedLastFrame;
         }
-
-        throw new Error("Called boardWithPieceAndGhost with no current piece")
+        return false;
     }
 
-    public get boardWithPiece(): Board {
-        const piece = this.currentPiece;
-
-        if (piece) {
-            return this.board.getBoardWithPiece(piece);
+    private keyPressed(control: Control): boolean {
+        let status = this.pressedKeys.get(control);
+        if (status) {
+            return status.pressed
         }
-
-        throw new Error("Called boardWithPiece with no current piece")
+        return false;
     }
 
-    public get queue() {
-        return this.state.generator.getPreview();
-    }
-
-    public notifyObservers() {
-        if (this.boardState.hasChanged) {
-            this.boardState.setValue(this.boardWithPieceAndGhost);
+    private getKeyUp(control: Control): boolean {
+        let status = this.pressedKeys.get(control);
+        if (status) {
+            return !status.pressed && status.pressedLastFrame
         }
-
-        this.boardState.notify();
-        this.currentPieceState.notify();
-        this.heldPieceState.notify();
-        this.queueState.notify();
+        return false;
     }
 
-    public init(): void {
-        this.refillQueue();
-        this.spawnPiece();
-        this.boardState.changed();
-        this.notifyObservers();
+    private stopDAS(): void {
+        this.DAS_Charge = 0;
+        this.ARR_Charge = 0;
+        this.ARR_Active = false;
+    }
+
+    private ARR_right(): void {
+        if (this.ARR_Active) {
+            while (this.ARR_Charge > this.ARR && this.game.movePiece(1, 0)) {
+                this.ARR_Charge -= this.ARR;
+            }
+        }
+    }
+
+    private ARR_left(): void {
+        if (this.ARR_Active) {
+            while (this.ARR_Charge > this.ARR && this.game.movePiece(-1, 0)) {
+                this.ARR_Charge -= this.ARR;
+            }
+        }
     }
 
     public update(): void {
-        this.inputManager.update(this);
-        this.notifyObservers();
-    }
 
-    public rotate(rotate: (board: Board, piece: Piece) => [boolean, Piece]): boolean {
-        if (!this.currentPiece) {
-            throw Error("called rotate without a current piece");
+        let elapsedTime = Date.now() - this.lastTick;
+
+        if (this.getKeyDown(Control.left)) {
+            this.game.movePiece(-1, 0);
+            this.stopDAS();
         }
-        const [rotated, newPiece] = rotate.call(this.rotationSystem, this.board, this.currentPiece);
-        if (rotated) {
-            this.currentPiece = newPiece;
-        }
-        return rotated;
-    }
-
-    //tries to rotate the current piece. returns true if the piece was rotated
-    public rotateCCW(): boolean {
-        const func = Object.getPrototypeOf(this.rotationSystem).rotateCCW;
-        return this.rotate(func);
-    }
-
-    //tries to rotate the current piece. returns true if the piece was rotated
-    public rotateCW(): boolean {
-        const func = Object.getPrototypeOf(this.rotationSystem).rotateCW;
-        return this.rotate(func);
-    }
-
-    //tries to rotate the current piece. returns true if the piece was rotated
-    public rotate180(): boolean {
-        const func = Object.getPrototypeOf(this.rotationSystem).rotate180;
-        return this.rotate(func);
-    }
-
-    //tries to move the current piece. return true if the piece was moved
-    public movePiece(x: number, y: number): boolean {
-
-        if (!this.currentPiece) {
-            return false;
-        }
-        let copy = this.currentPiece.clone();
-        copy.x += x;
-        copy.y += y;
-        if (this.board.collision(copy)) {
-            return false;
-        }
-        this.currentPiece = copy;
-        return true;
-    }
-
-    //returns the ghost piece
-    public get ghostPiece(): Piece {
-        if (!this.currentPiece) {
-            throw new Error("Tried to call getGhostPiece when current piece is undefined");
-        }
-        const ghost = this.currentPiece.clone();
-        while (!this.board.collision(ghost)) {
-            ghost.y--;
-        };
-        ghost.y++;
-        ghost.type = MinoType.ghost;
-        return ghost;
-    }
-
-    //spawns a new piece from queue.
-    public spawnPiece(): void {
-        this.currentPiece = this.state.generator.spawnPiece();
-        this.queueState.setValue(this.queue);
-    }
-
-    public resetPiece(piece: Piece): void {
-        const generator = this.state.generator;
-        piece.x = generator.spawnX;
-        piece.y = generator.spawnY;
-        if (piece.rotation === RotationState.right) {
-            this.rotateCCW();
-        }
-        if (piece.rotation === RotationState.left) {
-            piece.rotateCW();
-        }
-        if (piece.rotation === RotationState.fliped) {
-            piece.rotate180();
-        }
-    }
-
-    public hold(): void {
-
-        if (this.currentPiece) {
-            this.resetPiece(this.currentPiece);
+        if (this.getKeyDown(Control.right)) {
+            this.game.movePiece(1, 0);
+            this.stopDAS();
         }
 
-        let temp = this.currentPiece;
-
-        if (!this.heldPiece) {
-            this.spawnPiece();
-            this.heldPiece = temp;
+        if (this.getKeyUp(Control.left) || this.getKeyUp(Control.right)) {
+            this.stopDAS();
         }
-        else {
-            this.currentPiece = this.heldPiece;
-            this.heldPiece = temp;
+
+        if (this.keyPressed(Control.softDrop)) {
+            this.SDR_Charge += elapsedTime;
+            while (this.SDR_Charge > this.SDR && this.game.movePiece(0, -1)) {
+                this.SDR_Charge -= this.SDR;
+            }
         }
-    }
 
-    //locks the current piece on the board
-    public lockPiece(): void {
-        this.board = this.boardWithPiece;
-    }
+        if (this.keyPressed(Control.left) || this.keyPressed(Control.right)) {
+            this.DAS_Charge += elapsedTime;
+            this.ARR_Charge += elapsedTime;
+            if (this.DAS_Charge > this.DAS && !this.ARR_Active) {
+                this.ARR_Active = true;
+                this.ARR_Charge = this.DAS_Charge - this.DAS;
+            }
+        }
 
-    public clearLines(): void {
-        const board = this.board;
+        if (this.keyPressed(Control.left) && this.keyPressed(Control.right)) {
+            //The last key pressed preveils
+            const statusLeft = this.pressedKeys.get(Control.left);
+            const statusRight = this.pressedKeys.get(Control.right);
 
-        for (let y = board.height - 1; y >= 0; y--) {
-            let lineFull = true;
-            for (let x = 0; x < board.length; x++) {
-                if (board.minos[x][y].type === MinoType.empty) {
-                    lineFull = false;
-                    break;
+            if (statusLeft && statusRight) {
+                if (statusLeft.time > statusRight.time) {
+                    this.ARR_left();
+                }
+                else {
+                    this.ARR_right();
                 }
             }
 
-            if (lineFull) {
-                //pop the line and push a new line on top
-                for (let x = 0; x < board.length; x++) {
-                    board.minos[x].splice(y, 1);
-                    board.minos[x].push(new Mino());
-                }
-                this.boardState.changed();
-            }
-        }
-    }
-
-    //refils the bag
-    public refillQueue(): void {
-        if (canRefill(this.state.generator)) {
-            const gen = this.state.generator as unknown as CanReffil;
-            if (gen.shouldRefill()) {
-                gen.refill();
-            }
-        }
-    }
-
-    public hardDrop(): void {
-        while (this.movePiece(0, -1));
-        this.lockPiece();
-        this.clearLines();
-        this.spawnPiece();
-        this.refillQueue();
-    }
-
-    public reset(): void {
-        const currentGen = this.state.generator;
-        let newGen: Generator
-
-        if (hasRNG(currentGen)) {
-            const gen = currentGen as unknown as HasRNG;
-            newGen = gen.cloneWithNewRNG();
         }
         else {
-            newGen = currentGen.clone();
+            //One key pressed
+            if (this.keyPressed(Control.left,)) {
+                this.ARR_left();
+            }
+
+            if (this.keyPressed(Control.right)) {
+                this.ARR_right();
+            }
         }
 
-        this.board = new Board(10, 20);
-        this.queueState.setValue([]);
-        this.state.generator = newGen;
-        this.heldPiece = undefined;
-        this.currentPiece = undefined;
-        this.init();
-    }
+        //Simple keys
+        if (this.getKeyDown(Control.rotateCW)) {
+            this.game.rotate(RotationType.CW);
+        }
+        if (this.getKeyDown(Control.rotateCCW)) {
+            this.game.rotate(RotationType.CCW);
+        }
+        if (this.getKeyDown(Control.rotate180)) {
+            this.game.rotate(RotationType._180);
+        }
+        if (this.getKeyDown(Control.hardDrop)) {
+            while (this.game.movePiece(0, -1));
+            this.game.lockPiece();
+            this.game.clearLines();
+            this.game.spawnPiece();
+            this.game.refillQueue();
+        }
+        if (this.getKeyDown(Control.hold)) {
+            this.game.hold();
+        }
 
-    public skip(): void { }
+        this.controlsMap.forEach((value) => {
+            let status = this.pressedKeys.get(value);
+            if (status) {
+                status.pressedLastFrame = status.pressed;
+            }
+        });
+
+        this.lastTick = Date.now();
+        this.game.notifyObservers();
+    }
 
 }
 
-export { BasicController, type BasicStateInfo }
+export { Controller, Control }

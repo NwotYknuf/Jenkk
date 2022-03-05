@@ -5,24 +5,23 @@ import { SequenceGenerator } from "./sequence-generator";
 
 describe("Sequence generator", () => {
 
-    const first = new Piece(0, 0, 0, RotationState.flat, MinoType.J, [{ x: 0, y: 0 }]);
-    const second = new Piece(0, 0, 0, RotationState.flat, MinoType.L, [{ x: 1, y: 1 }]);
-    const third = new Piece(0, 0, 0, RotationState.flat, MinoType.O, [{ x: 2, y: 2 }]);
+    const first = new Piece(0, RotationState.flat, MinoType.J, [{ x: 0, y: 0 }]);
+    const second = new Piece(0, RotationState.flat, MinoType.L, [{ x: 1, y: 1 }]);
+    const third = new Piece(0, RotationState.flat, MinoType.O, [{ x: 2, y: 2 }]);
 
     const queue = [first, second, third];
 
     let sequenceGenerator: SequenceGenerator;
+    const nbPreviewPieces = 2;
 
     beforeEach(() => {
-        sequenceGenerator = new SequenceGenerator(3, 3, 2, Generator.cloneQueue(queue));
+        sequenceGenerator = new SequenceGenerator(Generator.cloneQueue(queue));
     })
 
     it("Generates a given queue", () => {
         for (let i = 0; i < queue.length; i++) {
             const piece = sequenceGenerator.spawnPiece();
             const expected = queue[i];
-            expected.x = 3;
-            expected.y = 3;
             expect(piece).toEqual(expected);
         }
     });
@@ -31,12 +30,10 @@ describe("Sequence generator", () => {
         expect(sequenceGenerator.spawnPiece).toThrow();
         const piece = sequenceGenerator.spawnPiece();
         expect(piece.type).toBe(MinoType.J);
-        expect(piece.x).toBe(sequenceGenerator.spawnX);
-        expect(piece.y).toBe(sequenceGenerator.spawnY);
     })
 
     it("Return a preview", () => {
-        expect(sequenceGenerator.getPreview()).toEqual(queue.slice(0, 2));
+        expect(sequenceGenerator.getPreview(nbPreviewPieces)).toEqual(queue.slice(0, 2));
     });
 
     it("Can make a copy of itseld", () => {

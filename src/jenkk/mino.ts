@@ -1,8 +1,14 @@
 
 enum MinoType {
-    empty,
-    S, Z, J, L, O, I, T,
-    ghost
+    empty = "E",
+    S = "S",
+    Z = "Z",
+    J = "J",
+    L = "L",
+    O = "O",
+    I = "I",
+    T = "T",
+    ghost = "G"
 }
 
 class Mino {

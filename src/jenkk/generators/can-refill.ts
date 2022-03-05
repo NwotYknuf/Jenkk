@@ -1,6 +1,6 @@
 interface CanReffil {
 
-    shouldRefill(): boolean;
+    shouldRefill(nbPreviewPieces: number): boolean;
     refill(): void;
 }
 

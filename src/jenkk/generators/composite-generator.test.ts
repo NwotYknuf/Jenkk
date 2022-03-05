@@ -9,25 +9,25 @@ import { SequenceGenerator } from "./sequence-generator";
 
 describe('Composite Generator', () => {
 
-    const first = new Piece(3, 3, 0, RotationState.flat, MinoType.J, [{ x: 0, y: 0 }]);
-    const second = new Piece(3, 3, 0, RotationState.flat, MinoType.L, [{ x: 1, y: 1 }]);
-    const third = new Piece(3, 3, 0, RotationState.flat, MinoType.O, [{ x: 2, y: 2 }]);
+    const first = new Piece(0, RotationState.flat, MinoType.J, [{ x: 0, y: 0 }]);
+    const second = new Piece(0, RotationState.flat, MinoType.L, [{ x: 1, y: 1 }]);
+    const third = new Piece(0, RotationState.flat, MinoType.O, [{ x: 2, y: 2 }]);
     const bag = [first, second, third];
 
     let generator: CompositeGenerator;
-
+    const nbPreviewPieces = 5;
     beforeEach(() => {
-        const genA = new SequenceGenerator(3, 3, 5, Generator.cloneQueue([first, second]));
-        const genB = new SequenceGenerator(3, 3, 5, Generator.cloneQueue([third]));
-        const genC = new BagGenerator(3, 3, 3, [], Generator.cloneQueue(bag), new LCG(1));
-        generator = new CompositeGenerator(3, 3, 5, [], [genA, genB, genC])
+        const genA = new SequenceGenerator(Generator.cloneQueue([first, second]));
+        const genB = new SequenceGenerator(Generator.cloneQueue([third]));
+        const genC = new BagGenerator([], Generator.cloneQueue(bag), new LCG(1));
+        generator = new CompositeGenerator([], [genA, genB, genC])
     });
 
     it("refills", () => {
-        expect(generator.shouldRefill()).toBe(true);
+        expect(generator.shouldRefill(nbPreviewPieces)).toBe(true);
         generator.refill();
-        expect(generator.getPreview()).toEqual([first, second, third, second, first]);
-        expect(generator.shouldRefill()).toBe(false);
+        expect(generator.getPreview(nbPreviewPieces)).toEqual([first, second, third, second, first]);
+        expect(generator.shouldRefill(nbPreviewPieces)).toBe(false);
     });
 
     it("can make a copy of itsefl", () => {

@@ -1,13 +1,15 @@
 import { Board } from './board'
+import { BoardBuilder } from './builders/board-builder';
 import { Mino, MinoType } from './mino';
 import { Piece, RotationState } from './piece';
+import { Position } from './position';
 
 describe("Board", () => {
 
     let board: Board;
 
     beforeEach(() => {
-        board = new Board();
+        board = new BoardBuilder().empty(10, 20);
     });
 
     it("Can change minos", () => {
@@ -31,88 +33,52 @@ describe("Board", () => {
         expect(board.minos[0][0]).toEqual({ type: MinoType.empty });
     });
 
-    it("Can export to and load from a valid json string", () => {
-        let str = board.export();
-        let loadedBoard = JSON.parse(str) as Board;
-        expect(loadedBoard.length).toBe(board.length);
-        expect(loadedBoard.height).toBe(board.height);
-        expect(loadedBoard.minos).toEqual(board.minos);
-    });
-
     it("Can return a board with a piece and a ghost", () => {
-        const piece = new Piece(4, 10, 0, RotationState.flat, MinoType.J, [{ x: -1, y: 1 }, { x: -1, y: 0 }, { x: 0, y: 0 }, { x: 1, y: 0 }]);
-        const ghost = new Piece(4, 0, 0, RotationState.flat, MinoType.J, [{ x: -1, y: 1 }, { x: -1, y: 0 }, { x: 0, y: 0 }, { x: 1, y: 0 }]);
+        const piece = new Piece(0, RotationState.flat, MinoType.J, [{ x: -1, y: 1 }, { x: -1, y: 0 }, { x: 0, y: 0 }, { x: 1, y: 0 }]);
+        const piecePos = new Position(4, 10);
+        const ghost = new Piece(0, RotationState.flat, MinoType.ghost, [{ x: -1, y: 1 }, { x: -1, y: 0 }, { x: 0, y: 0 }, { x: 1, y: 0 }]);
+        const ghostPos = new Position(4, 0);
 
-        let boardWithPieceAndGhost = board.getBoardWithPiece(piece, ghost);
+        let boardWithPieceAndGhost = board.getBoardWithPiece(piece, piecePos, ghost, ghostPos);
 
-        expect(boardWithPieceAndGhost.length).toBe(board.length);
-        expect(boardWithPieceAndGhost.height).toBe(board.height);
-        expect(boardWithPieceAndGhost.minos).toEqual([
-            [
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ],
-            [
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ],
-            [
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ],
-            [
-                { type: 3 }, { type: 3 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 3 }, { type: 3 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ],
-            [
-                { type: 3 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 3 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ],
-            [
-                { type: 3 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 3 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ],
-            [
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ],
-            [
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ],
-            [
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ],
-            [
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 },
-                { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }, { type: 0 }
-            ]
-        ]);
+        const expected = new BoardBuilder().empty(10, 20);
+        expected.setMino(4, 10, new Mino(MinoType.J));
+        expected.setMino(5, 10, new Mino(MinoType.J));
+        expected.setMino(3, 11, new Mino(MinoType.J));
+        expected.setMino(3, 10, new Mino(MinoType.J));
+
+        expected.setMino(4, 0, new Mino(MinoType.ghost));
+        expected.setMino(5, 0, new Mino(MinoType.ghost));
+        expected.setMino(3, 1, new Mino(MinoType.ghost));
+        expected.setMino(3, 0, new Mino(MinoType.ghost));
+
+        expect(boardWithPieceAndGhost).toEqual(expected);
         //the board was not affected
         expect(board.allClear()).toBe(true);
     });
 
     it("Can detect a collision", () => {
-        const piece = new Piece(0, 0, 0, RotationState.flat, MinoType.J, [{ x: 0, y: 0 }]);
+        const piece = new Piece(0, RotationState.flat, MinoType.J, [{ x: 0, y: 0 }]);
+        const piecePos = new Position(0, 0);
 
-        expect(board.collision(piece)).toBe(false);
+        expect(board.collision(piece, piecePos)).toBe(false);
         board.setMino(0, 0, new Mino(MinoType.J));
-        expect(board.collision(piece)).toBe(true);
+        expect(board.collision(piece, piecePos)).toBe(true);
 
         //piece out of bound
-        piece.x = 20;
-        expect(board.collision(piece)).toBe(true);
+        piecePos.x = 20;
+        expect(board.collision(piece, piecePos)).toBe(true);
 
-        piece.x = -20;
-        expect(board.collision(piece)).toBe(true);
+        piecePos.x = -20;
+        expect(board.collision(piece, piecePos)).toBe(true);
 
-        piece.x = 0;
-        piece.y = 30;
-        expect(board.collision(piece)).toBe(true);
+        piecePos.x = 0;
+        piecePos.y = 30;
 
-        piece.y = -30;
-        expect(board.collision(piece)).toBe(true);
+        expect(board.collision(piece, piecePos)).toBe(true);
+
+        piecePos.y = -30;
+        expect(board.collision(piece, piecePos)).toBe(true);
 
     });
 })

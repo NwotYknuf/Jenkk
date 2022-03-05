@@ -1,35 +1,23 @@
 
-import { State } from "./state";
+import { Observable } from "./state";
 
 describe("State", () => {
 
-    const subject = new State<Number>(0, false);
+    const subject = new Observable<Number>(0);
 
     it("Can have subscribers", () => {
 
         const eventA = jest.fn();
         const eventB = jest.fn();
 
-        const subA = {
-            update: (event: Number) => {
-                eventA();
-            }
-        }
-
-        const subB = {
-            update: (event: Number) => {
-                eventB();
-            }
-        }
-
-        const unsubA = subject.subscribe(subA);
-        subject.subscribe(subB);
+        const unsubA = subject.watch(eventA);
+        subject.watch(eventB);
 
         expect(eventA).toBeCalledTimes(0);
         expect(eventB).toBeCalledTimes(0);
 
         subject.setValue(5);
-        subject.notify();
+        subject.notifyChange();
 
         expect(eventA).toBeCalledTimes(1);
         expect(eventB).toBeCalledTimes(1);
@@ -37,12 +25,10 @@ describe("State", () => {
         unsubA();
 
         subject.setValue(5);
-        subject.notify();
+        subject.notifyChange();
 
         expect(eventA).toBeCalledTimes(1);
         expect(eventB).toBeCalledTimes(2);
 
     });
-
-
-})
+});

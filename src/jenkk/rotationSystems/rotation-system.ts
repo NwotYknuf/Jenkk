@@ -1,14 +1,15 @@
-import { Board } from '../board';
-import { Piece } from '../piece';
+import { Game } from '../controllers/game';
 
-type RotationFunction = () => void;
+enum RotationType {
+    CCW,
+    CW,
+    _180
+}
 
 abstract class RotationSystem {
 
-    public abstract rotateCW(board: Board, piece: Piece): [boolean, Piece];
-    public abstract rotateCCW(board: Board, piece: Piece): [boolean, Piece];
-    public abstract rotate180(board: Board, piece: Piece): [boolean, Piece];
+    public abstract rotate(game: Game, rotation: RotationType): boolean;
 
 }
 
-export { RotationSystem, type RotationFunction }
+export { RotationSystem, RotationType }

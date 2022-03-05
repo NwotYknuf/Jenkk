@@ -1,19 +1,20 @@
-import { Observer } from "./observer"
 
-class State<T> {
+type Observer<T> = (value: T) => void;
+
+class Observable<T> {
 
     private observers: Observer<T>[] = [];
 
-    public constructor(private _value: T, private _hasChanged: boolean) { }
+    public constructor(private _value: T, private _hasChanged: boolean = false) { }
 
-    public subscribe(observer: Observer<T>): () => void {
+    public watch(observer: Observer<T>): () => void {
         this.observers.push(observer);
         return () => { this.observers.splice(this.observers.indexOf(observer), 1) };
     }
 
-    public notify(): void {
+    public notifyChange(): void {
         if (this._hasChanged) {
-            this.observers.forEach((observer) => observer.update(this._value));
+            this.observers.forEach((observer) => observer(this._value));
             this._hasChanged = false;
         }
     }
@@ -21,6 +22,10 @@ class State<T> {
     public setValue(value: T) {
         this._value = value;
         this._hasChanged = true;
+    }
+
+    public getValue(): T {
+        return this._value;
     }
 
     public changed() {
@@ -33,4 +38,4 @@ class State<T> {
 
 }
 
-export { State }
+export { Observable, type Observer }

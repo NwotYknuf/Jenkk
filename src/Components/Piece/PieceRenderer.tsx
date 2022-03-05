@@ -1,11 +1,11 @@
 import './PieceRenderer.css';
 import { Mino } from '../../jenkk/mino';
 import BoardDisplay from '../Board/BoardRender';
-import { Board } from '../../jenkk/board';
 import { Piece } from '../../jenkk/piece';
+import { BoardBuilder } from '../../jenkk/builders/board-builder';
 
 const getBoardFromPiece = (piece: Piece | undefined, size: number) => {
-    const board = new Board(4, 4);
+    const board = new BoardBuilder().empty(4, 4);
 
     if (piece) {
         piece.shape.forEach(minoPos => {

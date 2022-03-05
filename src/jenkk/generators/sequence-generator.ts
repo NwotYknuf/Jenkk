@@ -8,13 +8,13 @@ import { Generator } from './generator';
  */
 class SequenceGenerator extends Generator {
 
-    constructor(spawnX: number, spawnY: number, nbPreviewPieces: number = 5, queue: Piece[]) {
-        super(spawnX, spawnY, nbPreviewPieces, queue);
+    constructor(queue: Piece[]) {
+        super(queue);
     }
 
     public clone(): Generator {
         const clonedQueue = Generator.cloneQueue(this.queue)
-        return new SequenceGenerator(this.spawnX, this.spawnY, this.nbPreviewPieces, clonedQueue);
+        return new SequenceGenerator(clonedQueue);
     }
 
 }

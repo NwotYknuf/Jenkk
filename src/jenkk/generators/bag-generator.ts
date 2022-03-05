@@ -9,12 +9,12 @@ import { LCG } from "./lcg";
  */
 class BagGenerator extends Generator implements CanReffil, HasRNG {
 
-    constructor(spawnX: number, spawnY: number, nbPreviewPieces: number, queue: Piece[], private bag: Piece[], private rng: LCG,) {
-        super(spawnX, spawnY, nbPreviewPieces, queue);
+    constructor(queue: Piece[], private bag: Piece[], private rng: LCG,) {
+        super(queue);
     }
 
-    public shouldRefill(): boolean {
-        return this.queue.length < this.nbPreviewPieces;
+    public shouldRefill(nbPreviewPieces: number): boolean {
+        return this.queue.length < nbPreviewPieces;
     }
     public canRefill(): boolean {
         return true;
@@ -29,12 +29,12 @@ class BagGenerator extends Generator implements CanReffil, HasRNG {
     public clone(): Generator {
         const queueClone = Generator.cloneQueue(this.queue);
         const bagClone = Generator.cloneQueue(this.bag);
-        return new BagGenerator(this.spawnX, this.spawnY, this.nbPreviewPieces, queueClone, bagClone, this.rng.clone());
+        return new BagGenerator(queueClone, bagClone, this.rng.clone());
     }
 
     public cloneWithNewRNG(): Generator {
         const bagClone = Generator.cloneQueue(this.bag);
-        return new BagGenerator(this.spawnX, this.spawnY, this.nbPreviewPieces, [], bagClone, new LCG(Date.now()));
+        return new BagGenerator([], bagClone, new LCG(Date.now()));
     }
 
 }

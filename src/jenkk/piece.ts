@@ -1,3 +1,4 @@
+import { Memento } from "./Memento";
 import { MinoType } from "./mino";
 
 /* 
@@ -31,9 +32,39 @@ type MinoPosition = {
     y: number
 }
 
-class Piece {
+class PieceSnapshot {
+    public constructor(public centerShift: number, public rotation: RotationState, public type: MinoType, public shape: MinoPosition[]) {
+        this.shape = Piece.copyShape(shape);
+    }
+}
 
-    constructor(public x: number, public y: number, public centerShift: number, public rotation: RotationState, public type: MinoType, public shape: MinoPosition[]) { }
+class Piece implements Memento<PieceSnapshot> {
+
+    constructor(private _centerShift: number, private _rotation: RotationState, private _type: MinoType, private _shape: MinoPosition[]) { }
+
+    public get centerShift() {
+        return this._centerShift;
+    }
+
+    public get rotation() {
+        return this._rotation;
+    }
+
+    public set rotation(rotation: RotationState) {
+        this._rotation = rotation;
+    }
+
+    public get type() {
+        return this._type;
+    }
+
+    public set type(type: MinoType) {
+        this._type = type
+    }
+
+    public get shape() {
+        return this._shape
+    }
 
     public static copyShape(shape: MinoPosition[]): MinoPosition[] {
         const res: MinoPosition[] = [];
@@ -70,7 +101,18 @@ class Piece {
     }
 
     public clone(): Piece {
-        return new Piece(this.x, this.y, this.centerShift, this.rotation, this.type, Piece.copyShape(this.shape));
+        return new Piece(this.centerShift, this.rotation, this.type, Piece.copyShape(this.shape));
+    }
+
+    public save(): PieceSnapshot {
+        return new PieceSnapshot(this.centerShift, this.rotation, this.type, this.shape);
+    }
+
+    public restore(snapshot: PieceSnapshot) {
+        this._shape = snapshot.shape;
+        this._type = snapshot.type;
+        this._centerShift = snapshot.centerShift;
+        this._rotation = snapshot.rotation;
     }
 
 }

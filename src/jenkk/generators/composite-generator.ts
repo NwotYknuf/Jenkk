@@ -5,12 +5,12 @@ import { Piece } from "../piece";
 
 class CompositeGenerator extends Generator implements CanReffil, HasRNG {
 
-    public constructor(spawnX: number, spawnY: number, nbPreviewPieces: number = 5, queue: Piece[], private generators: Generator[]) {
-        super(spawnX, spawnY, nbPreviewPieces, queue);
+    public constructor(queue: Piece[], private generators: Generator[]) {
+        super(queue);
     }
 
-    public shouldRefill(): boolean {
-        return this.queue.length < this.nbPreviewPieces;
+    public shouldRefill(nbPreviewPieces: number): boolean {
+        return this.queue.length < nbPreviewPieces;
     }
 
     public refill(): void {
@@ -19,9 +19,7 @@ class CompositeGenerator extends Generator implements CanReffil, HasRNG {
 
             if (canRefill(generator)) {
                 const refillableGenerator = generator as any as CanReffil;
-                if (refillableGenerator.shouldRefill()) {
-                    refillableGenerator.refill();
-                }
+                refillableGenerator.refill();
             }
 
             while (generator.canSpawnPiece()) {
@@ -46,7 +44,7 @@ class CompositeGenerator extends Generator implements CanReffil, HasRNG {
             }
         });
 
-        return new CompositeGenerator(this.spawnX, this.spawnY, this.nbPreviewPieces, queue, generators);
+        return new CompositeGenerator(queue, generators);
     }
 
     public clone(): Generator {
@@ -58,7 +56,7 @@ class CompositeGenerator extends Generator implements CanReffil, HasRNG {
             generators.push(generator.clone());
         });
 
-        return new CompositeGenerator(this.spawnX, this.spawnY, this.nbPreviewPieces, queue, generators);
+        return new CompositeGenerator(queue, generators);
     }
 
 }
