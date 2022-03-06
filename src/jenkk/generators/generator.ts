@@ -1,6 +1,15 @@
+import { Memento } from '../Memento';
 import { Piece } from '../piece';
 
-abstract class Generator {
+class GeneratorSnapshot {
+    public queue: Piece[]
+    constructor(queue: Piece[]) {
+        this.queue = Generator.cloneQueue(queue);
+    }
+
+}
+
+abstract class Generator implements Memento<GeneratorSnapshot>{
 
     constructor(protected queue: Piece[]) { }
 
@@ -30,5 +39,9 @@ abstract class Generator {
 
     public abstract clone(): Generator;
 
+    abstract save(): GeneratorSnapshot;
+
+    abstract restore(snapshot: GeneratorSnapshot): void;
 }
-export { Generator }
+
+export { Generator, GeneratorSnapshot }

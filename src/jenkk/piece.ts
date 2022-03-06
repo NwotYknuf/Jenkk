@@ -117,4 +117,4 @@ class Piece implements Memento<PieceSnapshot> {
 
 }
 
-export { Piece, RotationState, type MinoPosition }
+export { Piece, RotationState, type MinoPosition, PieceSnapshot }

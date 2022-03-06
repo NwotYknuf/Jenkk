@@ -29,7 +29,8 @@ class ControllerBuilder {
             ["KeyR", Control.rotate180],
             ["KeyE", Control.hold],
             ["F2", Control.skip],
-            ["F4", Control.reset]
+            ["F4", Control.reset],
+            ["Backspace", Control.undo]
         ]);
 
         const gameBuilder = new GameBuilder();

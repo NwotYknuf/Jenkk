@@ -105,4 +105,4 @@ class Board implements Memento<BoardSnapshot>{
 
 }
 
-export { Board }
+export { Board, BoardSnapshot }

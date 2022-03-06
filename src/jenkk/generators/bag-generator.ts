@@ -1,8 +1,19 @@
 import { Piece } from "../piece";
 import { CanReffil } from "./can-refill";
-import { Generator } from "./generator"
+import { Generator, GeneratorSnapshot } from "./generator"
 import { HasRNG } from "./has-rng";
 import { LCG } from "./lcg";
+
+class BagGeneratorSnapshot extends GeneratorSnapshot {
+    public bag: Piece[];
+    public rng: LCG;
+
+    constructor(queue: Piece[], bag: Piece[], rng: LCG) {
+        super(queue);
+        this.bag = Generator.cloneQueue(bag);
+        this.rng = rng.clone();
+    }
+}
 
 /*
  * A random bag generator
@@ -37,6 +48,16 @@ class BagGenerator extends Generator implements CanReffil, HasRNG {
         return new BagGenerator([], bagClone, new LCG(Date.now()));
     }
 
+    save(): GeneratorSnapshot {
+        return new BagGeneratorSnapshot(this.queue, this.bag, this.rng);
+    }
+
+    restore(snapshot: GeneratorSnapshot): void {
+        const snapshotConverted = snapshot as BagGeneratorSnapshot;
+        this.queue = Generator.cloneQueue(snapshotConverted.queue);
+        this.bag = Generator.cloneQueue(snapshotConverted.bag);
+        this.rng = snapshotConverted.rng.clone();
+    }
 }
 
 export { BagGenerator }

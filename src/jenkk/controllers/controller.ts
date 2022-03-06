@@ -1,4 +1,9 @@
 import { RotationType } from "../rotationSystems/rotation-system";
+import { Command } from "./commands/command";
+import { HardDropCommand } from "./commands/hard-drop-command";
+import { HoldCommand } from "./commands/hold-command";
+import { MoveCommand } from "./commands/move-command";
+import { RotateCommand } from "./commands/rotate-command";
 import { Game } from "./game";
 
 enum Control {
@@ -11,7 +16,8 @@ enum Control {
     rotate180,
     hold,
     reset,
-    skip
+    skip,
+    undo
 }
 
 type KeyStatus = { pressed: boolean, pressedLastFrame: boolean, time: number }
@@ -24,6 +30,7 @@ class Controller {
     private SDR_Charge: number = 0;
     private lastTick: number = Date.now();
     private pressedKeys: Map<Control, KeyStatus> = new Map<Control, KeyStatus>();
+    private commandHistory: Command[] = [];
 
     constructor(private game: Game, private controlsMap: Map<string, Control>, private DAS: number, private ARR: number, private SDR: number) {
 
@@ -96,7 +103,8 @@ class Controller {
 
     private ARR_right(): void {
         if (this.ARR_Active) {
-            while (this.ARR_Charge > this.ARR && this.game.movePiece(1, 0)) {
+            let command = new MoveCommand(this.game, 1, 0);
+            while (this.ARR_Charge > this.ARR && command.execute()) {
                 this.ARR_Charge -= this.ARR;
             }
         }
@@ -104,7 +112,8 @@ class Controller {
 
     private ARR_left(): void {
         if (this.ARR_Active) {
-            while (this.ARR_Charge > this.ARR && this.game.movePiece(-1, 0)) {
+            let command = new MoveCommand(this.game, -1, 0);
+            while (this.ARR_Charge > this.ARR && command.execute()) {
                 this.ARR_Charge -= this.ARR;
             }
         }
@@ -115,11 +124,13 @@ class Controller {
         let elapsedTime = Date.now() - this.lastTick;
 
         if (this.getKeyDown(Control.left)) {
-            this.game.movePiece(-1, 0);
+            const command = new MoveCommand(this.game, -1, 0);
+            command.execute()
             this.stopDAS();
         }
         if (this.getKeyDown(Control.right)) {
-            this.game.movePiece(1, 0);
+            const command = new MoveCommand(this.game, 1, 0);
+            command.execute();
             this.stopDAS();
         }
 
@@ -129,7 +140,8 @@ class Controller {
 
         if (this.keyPressed(Control.softDrop)) {
             this.SDR_Charge += elapsedTime;
-            while (this.SDR_Charge > this.SDR && this.game.movePiece(0, -1)) {
+            const command = new MoveCommand(this.game, 0, -1);
+            while (this.SDR_Charge > this.SDR && command.execute()) {
                 this.SDR_Charge -= this.SDR;
             }
         }
@@ -171,23 +183,30 @@ class Controller {
 
         //Simple keys
         if (this.getKeyDown(Control.rotateCW)) {
-            this.game.rotate(RotationType.CW);
+            const command = new RotateCommand(this.game, RotationType.CW);
+            command.execute()
         }
         if (this.getKeyDown(Control.rotateCCW)) {
-            this.game.rotate(RotationType.CCW);
+            const command = new RotateCommand(this.game, RotationType.CCW);
+            command.execute()
         }
         if (this.getKeyDown(Control.rotate180)) {
-            this.game.rotate(RotationType._180);
+            const command = new RotateCommand(this.game, RotationType._180);
+            command.execute()
         }
         if (this.getKeyDown(Control.hardDrop)) {
-            while (this.game.movePiece(0, -1));
-            this.game.lockPiece();
-            this.game.clearLines();
-            this.game.spawnPiece();
-            this.game.refillQueue();
+            const command = new HardDropCommand(this.game);
+            command.execute();
+            this.commandHistory.push(command);
         }
         if (this.getKeyDown(Control.hold)) {
-            this.game.hold();
+            const command = new HoldCommand(this.game);
+            command.execute();
+            this.commandHistory.push(command);
+        }
+        if (this.getKeyDown(Control.undo)) {
+            const command = this.commandHistory.pop();
+            command?.undo();
         }
 
         this.controlsMap.forEach((value) => {

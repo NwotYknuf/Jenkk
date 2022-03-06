@@ -32,7 +32,7 @@ class Game {
     private tSpin: boolean = false;
 
     public constructor(
-        private generator: Generator, private rotationSystem: RotationSystem, private spawPosition: Position, private nbPreviewPieces: number, _board: Board, currentPiece: Piece | undefined, heldPiece: Piece | undefined) {
+        private _generator: Generator, private rotationSystem: RotationSystem, private spawPosition: Position, private nbPreviewPieces: number, _board: Board, currentPiece: Piece | undefined, heldPiece: Piece | undefined) {
         this.boardState = new Observable<(Board)>(_board, true);
         this.queueState = new Observable<Piece[]>([], true);
         this.currentPieceState = new Observable<Piece | undefined>(currentPiece, true);
@@ -69,6 +69,15 @@ class Game {
         this.clearState.watch(watcher);
     }
 
+    public get generator(): Generator {
+        return this._generator;
+    }
+
+    public set generator(generator: Generator) {
+        this._generator = generator;
+        this.queueState.setValue(this.queue);
+    }
+
     public get board(): Board {
         return this.boardState.getValue();
     }
@@ -94,7 +103,7 @@ class Game {
     }
 
     public get queue() {
-        return this.generator.getPreview(this.nbPreviewPieces);
+        return this._generator.getPreview(this.nbPreviewPieces);
     }
 
     public get boardWithPiece(): Board {
@@ -154,12 +163,12 @@ class Game {
     }
 
     public spawnPiece(): void {
-        this.currentPiece = this.generator.spawnPiece();
+        this.currentPiece = this._generator.spawnPiece();
         this.currentPiecePosition = this.spawPosition.clone();
-        this.queueState.setValue(this.generator.getPreview(this.nbPreviewPieces));
+        this.queueState.setValue(this._generator.getPreview(this.nbPreviewPieces));
     }
 
-    private resetCurrentPiece(): void {
+    public resetCurrentPiece(): void {
 
         this.currentPiecePosition = this.spawPosition.clone();
 
@@ -246,8 +255,8 @@ class Game {
     }
 
     public refillQueue(): void {
-        if (canRefill(this.generator)) {
-            const gen = this.generator as unknown as CanReffil;
+        if (canRefill(this._generator)) {
+            const gen = this._generator as unknown as CanReffil;
             if (gen.shouldRefill(this.nbPreviewPieces)) {
                 gen.refill();
                 this.queueState.setValue(this.queue);

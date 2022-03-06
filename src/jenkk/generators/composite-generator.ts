@@ -1,7 +1,18 @@
-import { Generator } from "./generator";
+import { Generator, GeneratorSnapshot } from "./generator";
 import { CanReffil, canRefill } from "./can-refill"
 import { hasRNG, HasRNG } from "./has-rng";
 import { Piece } from "../piece";
+
+class CompositeGeneratorSnapshot extends GeneratorSnapshot {
+
+    public generators: Generator[];
+
+    constructor(queue: Piece[], generators: Generator[]) {
+        super(queue);
+        this.generators = CompositeGenerator.cloneGenerators(generators);
+    }
+
+}
 
 class CompositeGenerator extends Generator implements CanReffil, HasRNG {
 
@@ -29,10 +40,18 @@ class CompositeGenerator extends Generator implements CanReffil, HasRNG {
         });
     }
 
+    public static cloneGenerators(generators: Generator[]) {
+        const res: Generator[] = [];
+        generators.forEach((generator) => {
+            res.push(generator.clone());
+        });
+        return res;
+    }
+
     public cloneWithNewRNG(): Generator {
-        const generators: Generator[] = [];
         const queue = Generator.cloneQueue(this.queue);
 
+        const generators: Generator[] = [];
         this.generators.forEach((generator) => {
 
             if (hasRNG(generator)) {
@@ -48,15 +67,19 @@ class CompositeGenerator extends Generator implements CanReffil, HasRNG {
     }
 
     public clone(): Generator {
-
-        const generators: Generator[] = [];
+        const generators: Generator[] = CompositeGenerator.cloneGenerators(this.generators);
         const queue = Generator.cloneQueue(this.queue);
-
-        this.generators.forEach((generator) => {
-            generators.push(generator.clone());
-        });
-
         return new CompositeGenerator(queue, generators);
+    }
+
+    save(): GeneratorSnapshot {
+        return new CompositeGeneratorSnapshot(this.queue, this.generators);
+    }
+
+    restore(snapshot: GeneratorSnapshot): void {
+        const snapshotConverted = snapshot as CompositeGeneratorSnapshot;
+        this.queue = Generator.cloneQueue(snapshotConverted.queue);
+        this.generators = CompositeGenerator.cloneGenerators(snapshotConverted.generators);
     }
 
 }

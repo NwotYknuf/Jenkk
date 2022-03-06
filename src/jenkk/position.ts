@@ -1,15 +1,15 @@
 import { Memento } from "./Memento";
 
-class PiecePosSnapshot {
+class PositionSnapshot {
     public constructor(public x: number, public y: number) { }
 }
 
-class Position implements Memento<PiecePosSnapshot> {
+class Position implements Memento<PositionSnapshot> {
 
     public constructor(private _x: number, private _y: number) { }
 
-    public save(): PiecePosSnapshot {
-        return new PiecePosSnapshot(this._x, this._y)
+    public save(): PositionSnapshot {
+        return new PositionSnapshot(this._x, this._y)
     }
 
     public get x() { return this._x }
@@ -23,7 +23,7 @@ class Position implements Memento<PiecePosSnapshot> {
         this._y = y;
     }
 
-    public restore(snapshot: PiecePosSnapshot): void {
+    public restore(snapshot: PositionSnapshot): void {
         this._x = snapshot.x;
         this._y = snapshot.y;
     }
@@ -34,4 +34,4 @@ class Position implements Memento<PiecePosSnapshot> {
 
 }
 
-export { Position }
+export { Position, PositionSnapshot }
