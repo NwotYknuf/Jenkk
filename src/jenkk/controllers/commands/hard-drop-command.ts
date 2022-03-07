@@ -1,9 +1,6 @@
-import { Board, BoardSnapshot } from "../../board";
+import { BoardSnapshot } from "../../board";
 import { GeneratorSnapshot } from "../../generators/generator";
-import { MinoType } from "../../mino";
-import { Piece, PieceSnapshot } from "../../piece";
-import { Position, PositionSnapshot } from "../../position";
-import { Game } from "../game"
+import { PieceSnapshot } from "../../piece";
 import { Command } from "./command"
 
 class HardDropCommand extends Command {
@@ -11,10 +8,6 @@ class HardDropCommand extends Command {
     private generatorSnapshot: GeneratorSnapshot | undefined;
     private boardSnapshot: BoardSnapshot | undefined;
     private currentPieceSnapshot: PieceSnapshot | undefined;
-
-    constructor(game: Game) {
-        super(game)
-    }
 
     execute(): boolean {
         this.generatorSnapshot = this.game.generator.save();
@@ -36,15 +29,17 @@ class HardDropCommand extends Command {
             this.game.generator = gen;
         }
         if (this.boardSnapshot) {
-            const board = new Board([]);
+            const board = this.game.board;
             board.restore(this.boardSnapshot);
             this.game.board = board;
         }
         if (this.currentPieceSnapshot) {
-            const piece = new Piece(0, 0, MinoType.empty, []);
-            piece.restore(this.currentPieceSnapshot);
-            this.game.currentPiece = piece;
-            this.game.resetCurrentPiece();
+            const piece = this.game.currentPiece;
+            if (piece) {
+                piece.restore(this.currentPieceSnapshot);
+                this.game.currentPiece = piece;
+                this.game.resetCurrentPiece();
+            }
         }
     }
 }

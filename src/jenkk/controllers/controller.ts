@@ -7,17 +7,17 @@ import { RotateCommand } from "./commands/rotate-command";
 import { Game } from "./game";
 
 enum Control {
-    left,
-    right,
-    softDrop,
-    hardDrop,
-    rotateCCW,
-    rotateCW,
-    rotate180,
-    hold,
-    reset,
-    skip,
-    undo
+    left = "left",
+    right = "right",
+    softDrop = "soft drop",
+    hardDrop = "hard drop",
+    rotateCCW = "rotate CCW",
+    rotateCW = "rotate CW",
+    rotate180 = "rotate 180",
+    hold = "hold",
+    reset = "reset",
+    skip = "skip",
+    undo = "undo"
 }
 
 type KeyStatus = { pressed: boolean, pressedLastFrame: boolean, time: number }
@@ -68,6 +68,22 @@ class Controller {
         this.game.refillQueue();
         this.game.spawnPiece();
         this.game.notifyObservers();
+    }
+
+    public setControl(control: Control, newKey: string) {
+
+        let oldKey: string = "";
+
+        this.controlsMap.forEach((value, key) => {
+            if (value === control) {
+                oldKey = key;
+            }
+        });
+
+        console.log(oldKey);
+        this.controlsMap.delete(oldKey);
+        this.controlsMap.set(newKey, control);
+
     }
 
     private getKeyDown(control: Control): boolean {

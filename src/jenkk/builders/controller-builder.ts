@@ -15,23 +15,31 @@ type Listeners = {
     clear: Observer<Clear>[]
 }
 
+const defaultControls: Map<string, Control> = new Map<string, Control>([
+    ["Numpad4", Control.left],
+    ["Numpad6", Control.right],
+    ["Numpad5", Control.softDrop],
+    ["Space", Control.hardDrop],
+    ["KeyQ", Control.rotateCCW],
+    ["KeyW", Control.rotateCW],
+    ["KeyR", Control.rotate180],
+    ["KeyE", Control.hold],
+    ["F2", Control.skip],
+    ["F4", Control.reset],
+    ["Backspace", Control.undo]
+]);
+
 class ControllerBuilder {
 
-    default(listener: Listeners) {
+    static importControls(json: string): Map<string, Control> {
+        return new Map<string, Control>(JSON.parse(json));
+    }
 
-        const defaultControls: Map<string, Control> = new Map<string, Control>([
-            ["Numpad4", Control.left],
-            ["Numpad6", Control.right],
-            ["Numpad5", Control.softDrop],
-            ["Space", Control.hardDrop],
-            ["KeyQ", Control.rotateCCW],
-            ["KeyW", Control.rotateCW],
-            ["KeyR", Control.rotate180],
-            ["KeyE", Control.hold],
-            ["F2", Control.skip],
-            ["F4", Control.reset],
-            ["Backspace", Control.undo]
-        ]);
+    static exportControls(controls: Map<string, Control>): string {
+        return JSON.stringify(Array.from(controls.entries()));
+    }
+
+    build(listener: Listeners, controls?: string) {
 
         const gameBuilder = new GameBuilder();
         const game = gameBuilder.default();
@@ -60,7 +68,9 @@ class ControllerBuilder {
             game.addClearWatcher(listener);
         });
 
-        return new Controller(game, defaultControls, 95, 0, 0);
+        const controlMap = controls ? ControllerBuilder.importControls(controls) : defaultControls;
+
+        return new Controller(game, controlMap, 95, 0, 0);
     }
 
 }

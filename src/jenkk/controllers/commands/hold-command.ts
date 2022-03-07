@@ -1,6 +1,5 @@
 import { GeneratorSnapshot } from "../../generators/generator";
 import { PieceSnapshot } from "../../piece";
-import { Game } from "../game";
 import { Command } from "./command";
 
 class HoldCommand extends Command {
@@ -8,10 +7,6 @@ class HoldCommand extends Command {
     public currentPieceSnapshot: PieceSnapshot | undefined;
     public heldPieceSnapshot: PieceSnapshot | undefined;
     public generatorSnapshot: GeneratorSnapshot | undefined;
-
-    constructor(game: Game) {
-        super(game);
-    }
 
     execute(): boolean {
         this.currentPieceSnapshot = this.game.currentPiece?.save();

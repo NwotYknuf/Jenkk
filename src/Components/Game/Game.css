@@ -1,0 +1,12 @@
+.game{
+    margin: auto;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    height: 80vh;
+    justify-content: center;
+}
+
+body{
+    background-color: #111;
+}

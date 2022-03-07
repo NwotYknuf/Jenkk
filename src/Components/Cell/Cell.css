@@ -1,6 +1,6 @@
 .cell{
-    height: 35px;
-    width: 35px;
+    height: var(--cellSize);
+    width: var(--cellSize);
     margin: 0;
 }
 
