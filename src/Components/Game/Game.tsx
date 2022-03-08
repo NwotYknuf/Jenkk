@@ -24,6 +24,10 @@ function Game(props: GameProps) {
     const [heldPiece, setHeldPiece] = useState<Piece | undefined>();
     const [lastTimer, setLastTimer] = useState<NodeJS.Timer | undefined>();
 
+    const controller = props.controller;
+
+    console.log("rendering");
+
     useEffect(() => {
         const listeners: Listeners = {
             board: [(val) => setBoard(val)],
@@ -33,8 +37,10 @@ function Game(props: GameProps) {
             queue: [(val) => setQueue(val)],
             clear: [(val) => console.log(JSON.stringify(val))]
         }
-        ControllerBuilder.setListeners(listeners, props.controller.game);
-        props.controller.init();
+        ControllerBuilder.setListeners(listeners, controller.game);
+        controller.init();
+        //Suppressing this warning since i don't want the effect to run when controller is updated
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -43,10 +49,12 @@ function Game(props: GameProps) {
         }
         if (!props.paused) {
             const timer = setInterval(() => {
-                props.controller.update();
+                controller.update();
             }, 1)
             setLastTimer(timer);
         }
+        //Suppressing this warning since i don't want the effect to run when controller or lastTimer are updated
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.paused]);
 
     if (!board || !currentPiece) {
