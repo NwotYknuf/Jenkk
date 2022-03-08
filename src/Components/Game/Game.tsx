@@ -26,8 +26,6 @@ function Game(props: GameProps) {
 
     const controller = props.controller;
 
-    console.log("rendering");
-
     useEffect(() => {
         const listeners: Listeners = {
             board: [(val) => setBoard(val)],
