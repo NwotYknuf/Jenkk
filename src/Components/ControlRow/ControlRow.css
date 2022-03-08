@@ -1,0 +1,20 @@
+.control-row{
+    margin: 5px;
+    color: #CCC;
+    font-size: 22px;
+    width: 400px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.control-name .control-keycode{
+    color:#CCC;
+    font-size: 20px;
+    margin : 1;
+}
+
+.control-keycode{
+    margin: 0 10px 0 auto;
+    position:relative;
+    right: 0;
+}

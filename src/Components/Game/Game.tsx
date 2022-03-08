@@ -9,13 +9,11 @@ import Queue from '../../Components/Queue/Queue';
 import BoardDisplay from '../../Components/Board/BoardRender';
 import { Position } from '../../jenkk/position';
 import { MinoType } from '../../jenkk/mino';
-import cookie from 'react-cookies';
 
 type GameProps = {
-    paused: boolean;
+    paused: boolean,
+    controller: Controller;
 }
-
-let controller: Controller;
 
 function Game(props: GameProps) {
 
@@ -27,7 +25,6 @@ function Game(props: GameProps) {
     const [lastTimer, setLastTimer] = useState<NodeJS.Timer | undefined>();
 
     useEffect(() => {
-        const builder = new ControllerBuilder();
         const listeners: Listeners = {
             board: [(val) => setBoard(val)],
             held: [(val) => setHeldPiece(val)],
@@ -36,8 +33,8 @@ function Game(props: GameProps) {
             queue: [(val) => setQueue(val)],
             clear: [(val) => console.log(JSON.stringify(val))]
         }
-        const controls = cookie.load('controls', true);
-        controller = builder.build(listeners, controls);
+        ControllerBuilder.setListeners(listeners, props.controller.game);
+        props.controller.init();
     }, [])
 
     useEffect(() => {
@@ -46,8 +43,8 @@ function Game(props: GameProps) {
         }
         if (!props.paused) {
             const timer = setInterval(() => {
-                controller.update();
-            }, 1 / 120.0)
+                props.controller.update();
+            }, 1)
             setLastTimer(timer);
         }
     }, [props.paused]);

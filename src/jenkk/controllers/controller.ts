@@ -32,7 +32,7 @@ class Controller {
     private pressedKeys: Map<Control, KeyStatus> = new Map<Control, KeyStatus>();
     private commandHistory: Command[] = [];
 
-    constructor(private game: Game, private controlsMap: Map<string, Control>, private DAS: number, private ARR: number, private SDR: number) {
+    constructor(private _game: Game, private controlsMap: Map<string, Control>, private DAS: number, private ARR: number, private SDR: number) {
 
         this.controlsMap.forEach((value, key) => {
             this.pressedKeys.set(value, { pressed: false, pressedLastFrame: false, time: 0 });
@@ -64,26 +64,41 @@ class Controller {
                 }
             }
         });
-
-        this.game.refillQueue();
-        this.game.spawnPiece();
-        this.game.notifyObservers();
     }
 
-    public setControl(control: Control, newKey: string) {
+    public set controls(controls: Map<string, Control>) {
+        this.controlsMap = controls;
+    }
 
-        let oldKey: string = "";
+    public get controls() {
+        return this.controlsMap;
+    }
+
+    public get game() {
+        return this._game;
+    }
+
+    public init() {
+        this._game.refillQueue();
+        this._game.spawnPiece();
+        this._game.notifyObservers();
+    }
+
+    public getKeyCode(control: Control): string {
+        let res: string = "";
 
         this.controlsMap.forEach((value, key) => {
             if (value === control) {
-                oldKey = key;
+                res = key;
             }
         });
+        return res;
+    }
 
-        console.log(oldKey);
+    public setControl(control: Control, newKey: string) {
+        const oldKey = this.getKeyCode(control);
         this.controlsMap.delete(oldKey);
         this.controlsMap.set(newKey, control);
-
     }
 
     private getKeyDown(control: Control): boolean {
@@ -119,7 +134,7 @@ class Controller {
 
     private ARR_right(): void {
         if (this.ARR_Active) {
-            let command = new MoveCommand(this.game, 1, 0);
+            let command = new MoveCommand(this._game, 1, 0);
             while (this.ARR_Charge > this.ARR && command.execute()) {
                 this.ARR_Charge -= this.ARR;
             }
@@ -128,7 +143,7 @@ class Controller {
 
     private ARR_left(): void {
         if (this.ARR_Active) {
-            let command = new MoveCommand(this.game, -1, 0);
+            let command = new MoveCommand(this._game, -1, 0);
             while (this.ARR_Charge > this.ARR && command.execute()) {
                 this.ARR_Charge -= this.ARR;
             }
@@ -140,12 +155,12 @@ class Controller {
         let elapsedTime = Date.now() - this.lastTick;
 
         if (this.getKeyDown(Control.left)) {
-            const command = new MoveCommand(this.game, -1, 0);
+            const command = new MoveCommand(this._game, -1, 0);
             command.execute()
             this.stopDAS();
         }
         if (this.getKeyDown(Control.right)) {
-            const command = new MoveCommand(this.game, 1, 0);
+            const command = new MoveCommand(this._game, 1, 0);
             command.execute();
             this.stopDAS();
         }
@@ -156,7 +171,7 @@ class Controller {
 
         if (this.keyPressed(Control.softDrop)) {
             this.SDR_Charge += elapsedTime;
-            const command = new MoveCommand(this.game, 0, -1);
+            const command = new MoveCommand(this._game, 0, -1);
             while (this.SDR_Charge > this.SDR && command.execute()) {
                 this.SDR_Charge -= this.SDR;
             }
@@ -199,24 +214,24 @@ class Controller {
 
         //Simple keys
         if (this.getKeyDown(Control.rotateCW)) {
-            const command = new RotateCommand(this.game, RotationType.CW);
+            const command = new RotateCommand(this._game, RotationType.CW);
             command.execute()
         }
         if (this.getKeyDown(Control.rotateCCW)) {
-            const command = new RotateCommand(this.game, RotationType.CCW);
+            const command = new RotateCommand(this._game, RotationType.CCW);
             command.execute()
         }
         if (this.getKeyDown(Control.rotate180)) {
-            const command = new RotateCommand(this.game, RotationType._180);
+            const command = new RotateCommand(this._game, RotationType._180);
             command.execute()
         }
         if (this.getKeyDown(Control.hardDrop)) {
-            const command = new HardDropCommand(this.game);
+            const command = new HardDropCommand(this._game);
             command.execute();
             this.commandHistory.push(command);
         }
         if (this.getKeyDown(Control.hold)) {
-            const command = new HoldCommand(this.game);
+            const command = new HoldCommand(this._game);
             command.execute();
             this.commandHistory.push(command);
         }
@@ -233,7 +248,7 @@ class Controller {
         });
 
         this.lastTick = Date.now();
-        this.game.notifyObservers();
+        this._game.notifyObservers();
     }
 
 }

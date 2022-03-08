@@ -4,12 +4,15 @@ import Button from '@mui/material/Button';
 
 type ControlRowProps = {
     control: Control;
-    onclick: () => void;
+    keyCode: string;
+    onClick: () => void;
 }
 
 function ControlRow(props: ControlRowProps) {
     return <div className='control-row'>
-        <span>{props.control}</span> <Button variant="outlined" disableElevation onClick={props.onclick}>change</Button>
+        <span className='control-name'>{props.control}</span>
+        <span className='control-keycode'>{props.keyCode}</span>
+        <Button variant="outlined" disableElevation onClick={props.onClick}>{"Change"}</Button>
     </div>
 }
 

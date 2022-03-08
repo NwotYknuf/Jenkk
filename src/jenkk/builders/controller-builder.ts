@@ -1,10 +1,10 @@
 import { Board } from "../board";
 import { Control, Controller } from "../controllers/controller";
-import { Clear } from "../controllers/game";
+import { Clear, Game } from "../controllers/game";
 import { Observer } from "../events/state";
 import { Piece } from "../piece";
 import { GameBuilder } from "./game-builder";
-import { Position } from "../position"
+import { Position } from "../position";
 
 type Listeners = {
     board: Observer<Board>[],
@@ -39,11 +39,7 @@ class ControllerBuilder {
         return JSON.stringify(Array.from(controls.entries()));
     }
 
-    build(listener: Listeners, controls?: string) {
-
-        const gameBuilder = new GameBuilder();
-        const game = gameBuilder.default();
-
+    static setListeners(listener: Listeners, game: Game) {
         listener.board.forEach(listener => {
             game.addBoardWatcher(listener);
         });
@@ -67,8 +63,18 @@ class ControllerBuilder {
         listener.clear.forEach(listener => {
             game.addClearWatcher(listener);
         });
+    }
 
-        const controlMap = controls ? ControllerBuilder.importControls(controls) : defaultControls;
+    build(listener?: Listeners, controls?: Map<string, Control>) {
+
+        const gameBuilder = new GameBuilder();
+        const game = gameBuilder.default();
+
+        if (listener) {
+            ControllerBuilder.setListeners(listener, game);
+        }
+
+        const controlMap = controls ? controls : defaultControls;
 
         return new Controller(game, controlMap, 95, 0, 0);
     }

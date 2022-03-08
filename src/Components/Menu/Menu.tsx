@@ -6,7 +6,7 @@ type MenuProps = {
 
 function Menu(props: MenuProps) {
     return <div className='menu'>
-        {props.children.map(component => {
+        {props.children.map((component, key) => {
             return component;
         })}
     </div>
