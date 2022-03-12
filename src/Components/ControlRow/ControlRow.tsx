@@ -1,6 +1,7 @@
 import './ControlRow.css'
 import { Control } from '../../jenkk/controllers/controller';
 import Button from '@mui/material/Button';
+import { Typography, Box } from '@mui/material';
 
 type ControlRowProps = {
     control: Control;
@@ -10,9 +11,12 @@ type ControlRowProps = {
 
 function ControlRow(props: ControlRowProps) {
     return <div className='control-row'>
-        <span className='control-name'>{props.control}</span>
-        <span className='control-keycode'>{props.keyCode}</span>
-        <Button variant="outlined" disableElevation onClick={props.onClick}>{"Change"}</Button>
+        <Typography variant="button">{props.control}</Typography>
+        <Box >
+            <Typography variant="button">{props.keyCode}</Typography>
+            <Box component={"span"} sx={{ mr: "15px" }}></Box>
+            <Button variant="outlined" disableElevation onClick={props.onClick}>{"Change"}</Button>
+        </Box>
     </div>
 }
 

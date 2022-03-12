@@ -32,16 +32,16 @@ class Controller {
     private pressedKeys: Map<Control, KeyStatus> = new Map<Control, KeyStatus>();
     private commandHistory: Command[] = [];
 
-    constructor(private _game: Game, private controlsMap: Map<string, Control>, private DAS: number, private ARR: number, private SDR: number) {
+    constructor(private _game: Game, private controlsMap: Map<string, Control>, private _DAS: number, private _ARR: number, private _SDR: number) {
 
         this.controlsMap.forEach((value, key) => {
             this.pressedKeys.set(value, { pressed: false, pressedLastFrame: false, time: 0 });
         });
 
         document.addEventListener('keydown', (event) => {
-            event.preventDefault();
-            if (!event.repeat) {
-                if (event.code && this.controlsMap.has(event.code)) {
+            if (event.code && this.controlsMap.has(event.code)) {
+                event.preventDefault();
+                if (!event.repeat) {
                     const control = this.controlsMap.get(event.code);
                     if (control !== undefined) {
                         let status = this.pressedKeys.get(control);
@@ -55,8 +55,8 @@ class Controller {
         });
 
         document.addEventListener('keyup', (event) => {
-            event.preventDefault();
             if (event.code && this.controlsMap.has(event.code)) {
+                event.preventDefault();
                 const control = this.controlsMap.get(event.code);
                 if (control !== undefined) {
                     let status = this.pressedKeys.get(control);
@@ -66,6 +66,30 @@ class Controller {
                 }
             }
         });
+    }
+
+    public set DAS(das: number) {
+        this._DAS = das;
+    }
+
+    public get DAS() {
+        return this._DAS;
+    }
+
+    public set ARR(arr: number) {
+        this._ARR = arr
+    }
+
+    public get ARR() {
+        return this._ARR;
+    }
+
+    public set SDR(sdr: number) {
+        this._SDR = sdr;
+    }
+
+    public get SDR() {
+        return this._SDR;
     }
 
     public set controls(controls: Map<string, Control>) {
@@ -137,8 +161,8 @@ class Controller {
     private ARR_right(): void {
         if (this.ARR_Active) {
             let command = new MoveCommand(this._game, 1, 0);
-            while (this.ARR_Charge > this.ARR && command.execute()) {
-                this.ARR_Charge -= this.ARR;
+            while (this.ARR_Charge > this._ARR && command.execute()) {
+                this.ARR_Charge -= this._ARR;
             }
         }
     }
@@ -146,8 +170,8 @@ class Controller {
     private ARR_left(): void {
         if (this.ARR_Active) {
             let command = new MoveCommand(this._game, -1, 0);
-            while (this.ARR_Charge > this.ARR && command.execute()) {
-                this.ARR_Charge -= this.ARR;
+            while (this.ARR_Charge > this._ARR && command.execute()) {
+                this.ARR_Charge -= this._ARR;
             }
         }
     }
@@ -174,17 +198,17 @@ class Controller {
         if (this.keyPressed(Control.softDrop)) {
             this.SDR_Charge += elapsedTime;
             const command = new MoveCommand(this._game, 0, -1);
-            while (this.SDR_Charge > this.SDR && command.execute()) {
-                this.SDR_Charge -= this.SDR;
+            while (this.SDR_Charge > this._SDR && command.execute()) {
+                this.SDR_Charge -= this._SDR;
             }
         }
 
         if (this.keyPressed(Control.left) || this.keyPressed(Control.right)) {
             this.DAS_Charge += elapsedTime;
             this.ARR_Charge += elapsedTime;
-            if (this.DAS_Charge > this.DAS && !this.ARR_Active) {
+            if (this.DAS_Charge > this._DAS && !this.ARR_Active) {
                 this.ARR_Active = true;
-                this.ARR_Charge = this.DAS_Charge - this.DAS;
+                this.ARR_Charge = this.DAS_Charge - this._DAS;
             }
         }
 

@@ -14,7 +14,8 @@
     height: 100vh;
     top: 0;
     left: 0;
-    background-color: #000000b0;
+    background-color: #000000CC;
     font-size: 60px;
     color: #DDD;
+    z-index: 1000;
 }

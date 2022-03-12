@@ -15,6 +15,18 @@ type Listeners = {
     clear: Observer<Clear>[]
 }
 
+type Options = {
+    DAS: number;
+    ARR: number;
+    SDR: number;
+}
+
+const defaultOptions: Options = {
+    DAS: 95,
+    ARR: 0,
+    SDR: 0
+};
+
 const defaultControls: Map<string, Control> = new Map<string, Control>([
     ["Numpad4", Control.left],
     ["Numpad6", Control.right],
@@ -65,18 +77,12 @@ class ControllerBuilder {
         });
     }
 
-    build(listener?: Listeners, controls?: Map<string, Control>) {
-
+    build(controls?: Map<string, Control>, options?: Options) {
         const gameBuilder = new GameBuilder();
         const game = gameBuilder.default();
-
-        if (listener) {
-            ControllerBuilder.setListeners(listener, game);
-        }
-
         const controlMap = controls ? controls : defaultControls;
-
-        return new Controller(game, controlMap, 95, 0, 0);
+        const gameOptions = options ? options : defaultOptions;
+        return new Controller(game, controlMap, gameOptions.DAS, gameOptions.ARR, gameOptions.SDR);
     }
 
 }
