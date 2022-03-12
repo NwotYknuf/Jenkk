@@ -41,16 +41,16 @@ class SRS extends RotationSystem {
         rotationFunction.call(piece);
         const nextRotation = piece.rotation;
         const kickTable = piece.type === MinoType.I ? this.IkickTable : this.kickTable;
-        const shifts = kickTable.get(currentRotation)?.get(nextRotation);
+        const kicks = kickTable.get(currentRotation)?.get(nextRotation);
 
-        if (!shifts) {
+        if (!kicks) {
             throw new Error(`Missing kick table for ${currentRotation} ${nextRotation}`);
         }
 
         //try all SRS kicks
-        for (let i = 0; i < shifts.length; i++) {
-            pos.x += shifts[i].x;
-            pos.y += shifts[i].y;
+        for (let i = 0; i < kicks.length; i++) {
+            pos.x += kicks[i].x;
+            pos.y += kicks[i].y;
             if (!game.board.collision(piece, pos)) {
                 game.currentPiece = piece;
                 game.currentPiecePosition = pos;
