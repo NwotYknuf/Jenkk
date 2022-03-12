@@ -1,3 +1,5 @@
+import { BoardBuilder } from "../builders/board-builder";
+import { GeneratorBuilder } from "../builders/generator-builder";
 import { RotationType } from "../rotationSystems/rotation-system";
 import { Command } from "./commands/command";
 import { HardDropCommand } from "./commands/hard-drop-command";
@@ -176,6 +178,14 @@ class Controller {
         }
     }
 
+    private reset(): void {
+        this.game.board = new BoardBuilder().empty(10, 20);
+        this.game.generator = new GeneratorBuilder().sevenBag();
+        this.game.currentPiece = undefined;
+        this.game.heldPiece = undefined;
+        this.init();
+    }
+
     public update(): void {
 
         let elapsedTime = Date.now() - this.lastTick;
@@ -264,6 +274,9 @@ class Controller {
         if (this.getKeyDown(Control.undo)) {
             const command = this.commandHistory.pop();
             command?.undo();
+        }
+        if (this.getKeyDown(Control.reset)) {
+            this.reset();
         }
 
         this.controlsMap.forEach((value) => {
