@@ -35,14 +35,22 @@ class Board implements Memento<BoardSnapshot>{
         this.minos[x][y] = mino;
     }
 
-    public occupied(x: number, y: number): boolean {
-
+    public inBound(x: number, y: number): boolean {
         if (x >= this.length || x < 0) {
-            return true;
+            return false;
         }
         if (y >= this.height || y < 0) {
+            return false;
+        }
+        return true;
+    }
+
+    public occupied(x: number, y: number): boolean {
+
+        if (!this.inBound(x, y)) {
             return true;
         }
+
         return this.minos[x][y].type !== MinoType.empty;
     }
 
@@ -61,7 +69,9 @@ class Board implements Memento<BoardSnapshot>{
                 const mino = ghost.shape[i];
                 const x = ghostPos.x + ghost.centerShift + mino.x;
                 const y = ghostPos.y + ghost.centerShift + mino.y;
-                res.minos[x][y] = new Mino(ghost.type);
+                if (res.inBound(x, y)) {
+                    res.minos[x][y] = new Mino(ghost.type);
+                }
             }
         }
 
@@ -69,7 +79,9 @@ class Board implements Memento<BoardSnapshot>{
             const mino = piece.shape[i];
             const x = piecePos.x + piece.centerShift + mino.x;
             const y = piecePos.y + piece.centerShift + mino.y;
-            res.minos[x][y] = new Mino(piece.type);
+            if (res.inBound(x, y)) {
+                res.minos[x][y] = new Mino(piece.type);
+            }
         }
 
         return res;
