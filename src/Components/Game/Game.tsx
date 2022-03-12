@@ -12,7 +12,8 @@ import { MinoType } from '../../jenkk/mino';
 
 type GameProps = {
     paused: boolean,
-    controller: Controller;
+    display: boolean
+    controller: Controller
 }
 
 function Game(props: GameProps) {
@@ -67,7 +68,7 @@ function Game(props: GameProps) {
         ghostPos.y++;
         ghost.type = MinoType.ghost;
 
-        return <div className='game'>
+        return <div style={{ display: props.display ? 'flex' : 'none' }} className='game'>
             <Hold piece={heldPiece}></Hold>
             <BoardDisplay board={board.getBoardWithPiece(currentPiece, currentPiecePos, ghost, ghostPos)}></BoardDisplay>
             <Queue queue={queue}></Queue>

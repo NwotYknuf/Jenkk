@@ -39,6 +39,7 @@ class Controller {
         });
 
         document.addEventListener('keydown', (event) => {
+            event.preventDefault();
             if (!event.repeat) {
                 if (event.code && this.controlsMap.has(event.code)) {
                     const control = this.controlsMap.get(event.code);
@@ -54,6 +55,7 @@ class Controller {
         });
 
         document.addEventListener('keyup', (event) => {
+            event.preventDefault();
             if (event.code && this.controlsMap.has(event.code)) {
                 const control = this.controlsMap.get(event.code);
                 if (control !== undefined) {

@@ -3,23 +3,3 @@
     --cellSize : min(calc(80vh/20), calc(80vw/20));
 } 
 
-.controls-container{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 30px;
-}
-
-.press-a-key{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    background-color: #000000b0;
-    font-size: 60px;
-    color: #DDD;
-}
