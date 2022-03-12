@@ -1,9 +1,9 @@
 import './Controls.css';
 import { useState } from 'react';
 import ControlRow from '../ControlRow/ControlRow';
-import { Control, Controller } from '../../jenkk/controllers/controller';
+import { Control, Controller } from '../../../jenkk/controllers/controller';
 import cookie from 'react-cookies';
-import { ControllerBuilder } from '../../jenkk/builders/controller-builder';
+import { ControllerBuilder } from '../../../jenkk/builders/controller-builder';
 
 type ControlsProps = {
     controller: Controller

@@ -1,15 +1,15 @@
 import './App.css';
 import { useState } from 'react';
-import { Control } from '../../jenkk/controllers/controller';
-import Game from '../Game/Game';
-import Menu from '../Menu/Menu';
-import Options from '../Options/Options';
-import Controls from '../Controls/Controls';
+import Game from '../GameComponents/Game/Game';
+import Menu from '../MenuComponents/Menu/Menu';
+import Options from '../MenuComponents/Options/Options';
+import Controls from '../MenuComponents/Controls/Controls';
+import MenuButton from '../MenuComponents/MenuButton/MenuButton';
 import { ControllerBuilder } from '../../jenkk/builders/controller-builder';
-import cookie from 'react-cookies';
-import MenuButton from '../MenuButton/MenuButton';
+import { Control } from '../../jenkk/controllers/controller';
 import { createTheme, ThemeProvider, responsiveFontSizes } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
+import cookie from 'react-cookies';
 
 const builder = new ControllerBuilder();
 const controlsCookie = cookie.load('controls', true);

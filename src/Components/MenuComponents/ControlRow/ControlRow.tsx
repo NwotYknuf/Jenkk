@@ -1,5 +1,5 @@
 import './ControlRow.css'
-import { Control } from '../../jenkk/controllers/controller';
+import { Control } from '../../../jenkk/controllers/controller';
 import Button from '@mui/material/Button';
 import { Typography, Box } from '@mui/material';
 

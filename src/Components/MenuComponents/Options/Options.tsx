@@ -1,5 +1,5 @@
 import "./Options.css"
-import { Controller } from "../../jenkk/controllers/controller";
+import { Controller } from "../../../jenkk/controllers/controller";
 import NumberField from "../NumberField/NumberField";
 
 type OptionsProp = {

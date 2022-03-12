@@ -1,8 +1,8 @@
 import './PieceRenderer.css';
-import { Mino } from '../../jenkk/mino';
+import { Mino } from '../../../jenkk/mino';
 import BoardDisplay from '../Board/BoardRender';
-import { Piece } from '../../jenkk/piece';
-import { BoardBuilder } from '../../jenkk/builders/board-builder';
+import { Piece } from '../../../jenkk/piece';
+import { BoardBuilder } from '../../../jenkk/builders/board-builder';
 
 const getBoardFromPiece = (piece: Piece | undefined, size: number) => {
     const board = new BoardBuilder().empty(4, 4);

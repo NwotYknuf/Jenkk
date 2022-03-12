@@ -1,14 +1,14 @@
 import './Game.css';
 import { useState, useEffect } from 'react';
-import { ControllerBuilder, Listeners } from '../../jenkk/builders/controller-builder';
-import { Piece } from '../../jenkk/piece';
-import { Board } from '../../jenkk/board';
-import { Controller } from '../../jenkk/controllers/controller';
-import Hold from '../../Components/Hold/Hold';
-import Queue from '../../Components/Queue/Queue';
-import BoardDisplay from '../../Components/Board/BoardRender';
-import { Position } from '../../jenkk/position';
-import { MinoType } from '../../jenkk/mino';
+import { ControllerBuilder, Listeners } from '../../../jenkk/builders/controller-builder';
+import Hold from '../Hold/Hold';
+import Queue from '../Queue/Queue';
+import BoardDisplay from '../Board/BoardRender';
+import { Piece } from '../../../jenkk/piece';
+import { Board } from '../../../jenkk/board';
+import { Controller } from '../../../jenkk/controllers/controller';
+import { Position } from '../../../jenkk/position';
+import { MinoType } from '../../../jenkk/mino';
 
 type GameProps = {
     paused: boolean,
