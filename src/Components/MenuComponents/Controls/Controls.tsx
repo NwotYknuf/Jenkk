@@ -2,8 +2,7 @@ import './Controls.css';
 import { useState } from 'react';
 import ControlRow from '../ControlRow/ControlRow';
 import { Control, Controller } from '../../../jenkk/controllers/controller';
-import cookie from 'react-cookies';
-import { ControllerBuilder } from '../../../jenkk/builders/controller-builder';
+import { exportControls } from '../../../cookies';
 
 type ControlsProps = {
     controller: Controller
@@ -21,8 +20,7 @@ function Controls(props: ControlsProps) {
                 if (event.code) {
                     event.preventDefault();
                     props.controller.setControl(control, event.code);
-                    const savedControls = ControllerBuilder.exportControls(props.controller.controls)
-                    cookie.save('controls', savedControls, {});
+                    exportControls(props.controller.controls);
                     setWaitingForKey(false);
                     window.removeEventListener('keydown', handler);
                 }

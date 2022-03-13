@@ -8,14 +8,18 @@ import MenuButton from '../MenuComponents/MenuButton/MenuButton';
 import { ControllerBuilder } from '../../jenkk/builders/controller-builder';
 import { createTheme, ThemeProvider, responsiveFontSizes } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
-import cookie from 'react-cookies';
+import { importControls, importOptions } from '../../cookies';
 
 const builder = new ControllerBuilder();
-const controlsCookie = cookie.load('controls', true);
+const controls = importControls();
+const options = importOptions();
 
-if (controlsCookie) {
-  const controls = ControllerBuilder.importControls(controlsCookie);
+if (controls) {
   builder.controls = controls;
+}
+
+if (options) {
+  builder.options = options;
 }
 
 const controller = builder.build();

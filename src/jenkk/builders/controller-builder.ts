@@ -71,14 +71,6 @@ class ControllerBuilder {
         this._game = game;
     }
 
-    static importControls(json: string): Map<string, Control> {
-        return new Map<string, Control>(JSON.parse(json));
-    }
-
-    static exportControls(controls: Map<string, Control>): string {
-        return JSON.stringify(Array.from(controls.entries()));
-    }
-
     build() {
 
         this._listeners.board.forEach(listener => {
@@ -110,4 +102,4 @@ class ControllerBuilder {
 
 }
 
-export { ControllerBuilder, type Listeners }
+export { ControllerBuilder, type Listeners, type Options }

@@ -1,6 +1,8 @@
 import "./Options.css"
 import { Controller } from "../../../jenkk/controllers/controller";
 import NumberField from "../NumberField/NumberField";
+import { exportOptions } from "../../../cookies";
+import { Options as JenkkOptions } from "../../../jenkk/builders/controller-builder";
 
 type OptionsProp = {
     controller: Controller;
@@ -8,10 +10,20 @@ type OptionsProp = {
 
 function Options(props: OptionsProp) {
 
+    function saveOptions() {
+        const options: JenkkOptions = {
+            DAS: props.controller.DAS,
+            ARR: props.controller.ARR,
+            SDR: props.controller.SDR
+        }
+        exportOptions(options);
+    }
+
     const changeDAS = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseInt(event.target.value);
         if (value || value === 0) {
             props.controller.DAS = value;
+            saveOptions();
         }
     }
 
@@ -19,6 +31,7 @@ function Options(props: OptionsProp) {
         const value = parseInt(event.target.value);
         if (value || value === 0) {
             props.controller.ARR = value;
+            saveOptions();
         }
     }
 
@@ -26,6 +39,7 @@ function Options(props: OptionsProp) {
         const value = parseInt(event.target.value);
         if (value || value === 0) {
             props.controller.SDR = value;
+            saveOptions();
         }
     }
 
