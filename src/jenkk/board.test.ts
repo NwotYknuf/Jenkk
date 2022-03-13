@@ -9,7 +9,7 @@ describe("Board", () => {
     let board: Board;
 
     beforeEach(() => {
-        board = new BoardBuilder().empty(10, 20);
+        board = new BoardBuilder().build();
     });
 
     it("Can change minos", () => {
@@ -41,7 +41,7 @@ describe("Board", () => {
 
         let boardWithPieceAndGhost = board.getBoardWithPiece(piece, piecePos, ghost, ghostPos);
 
-        const expected = new BoardBuilder().empty(10, 20);
+        const expected = new BoardBuilder().build();
         expected.setMino(4, 10, new Mino(MinoType.J));
         expected.setMino(5, 10, new Mino(MinoType.J));
         expected.setMino(3, 11, new Mino(MinoType.J));

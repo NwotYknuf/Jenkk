@@ -1,6 +1,6 @@
 import './Game.css';
 import { useState, useEffect } from 'react';
-import { ControllerBuilder, Listeners } from '../../../jenkk/builders/controller-builder';
+import { Listeners } from '../../../jenkk/builders/controller-builder';
 import Hold from '../Hold/Hold';
 import Queue from '../Queue/Queue';
 import BoardDisplay from '../Board/BoardRender';
@@ -9,11 +9,38 @@ import { Board } from '../../../jenkk/board';
 import { Controller } from '../../../jenkk/controllers/controller';
 import { Position } from '../../../jenkk/position';
 import { MinoType } from '../../../jenkk/mino';
+import { Game as JenkkGame } from '../../../jenkk/controllers/game';
 
 type GameProps = {
     paused: boolean,
     display: boolean
     controller: Controller
+}
+
+function setListeners(game: JenkkGame, listeners: Listeners) {
+    listeners.board.forEach(listener => {
+        game.addBoardWatcher(listener);
+    });
+
+    listeners.queue.forEach(listener => {
+        game.addQueueWatcher(listener);
+    });
+
+    listeners.current.forEach(listener => {
+        game.addCurrentPieceWatcher(listener);
+    });
+
+    listeners.currentPos.forEach(listener => {
+        game.addCurrentPiecePosWatcher(listener);
+    });
+
+    listeners.held.forEach(listener => {
+        game.addHeldWatcher(listener);
+    });
+
+    listeners.clear.forEach(listener => {
+        game.addClearWatcher(listener);
+    });
 }
 
 function Game(props: GameProps) {
@@ -36,7 +63,7 @@ function Game(props: GameProps) {
             queue: [(val) => setQueue(val)],
             clear: [(val) => console.log(JSON.stringify(val))]
         }
-        ControllerBuilder.setListeners(listeners, controller.game);
+        setListeners(controller.game, listeners);
         controller.init();
         //Suppressing this warning since i don't want the effect to run when controller is updated
         // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -5,7 +5,10 @@ import { Piece } from '../../../jenkk/piece';
 import { BoardBuilder } from '../../../jenkk/builders/board-builder';
 
 const getBoardFromPiece = (piece: Piece | undefined, size: number) => {
-    const board = new BoardBuilder().empty(4, 4);
+    const builder = new BoardBuilder();
+    builder.height = 4;
+    builder.length = 4;
+    const board = builder.build();
 
     if (piece) {
         piece.shape.forEach(minoPos => {

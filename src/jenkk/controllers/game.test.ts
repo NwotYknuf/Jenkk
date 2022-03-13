@@ -12,24 +12,24 @@ describe("Game", () => {
     let game: Game;
 
     beforeEach(() => {
-        game = new GameBuilder().test();
+        game = new GameBuilder().build();
     });
 
     it("Refills the queue", () => {
         game.refillQueue();
         expect(game.queue).toEqual([
-            new PieceBuilder().J(),
-            new PieceBuilder().I(),
-            new PieceBuilder().T(),
-            new PieceBuilder().S(),
-            new PieceBuilder().L()
+            PieceBuilder.buildFromTemplate(MinoType.J),
+            PieceBuilder.buildFromTemplate(MinoType.I),
+            PieceBuilder.buildFromTemplate(MinoType.T),
+            PieceBuilder.buildFromTemplate(MinoType.S),
+            PieceBuilder.buildFromTemplate(MinoType.L)
         ]);
     });
 
     it("Spawns a piece", () => {
         game.refillQueue();
         game.spawnPiece();
-        expect(game.currentPiece).toEqual(new PieceBuilder().J());
+        expect(game.currentPiece).toEqual(PieceBuilder.buildFromTemplate(MinoType.J));
     });
 
     it("Holds a piece", () => {
@@ -37,18 +37,18 @@ describe("Game", () => {
         game.spawnPiece();
         expect(game.heldPiece).toBe(undefined);
         game.hold();
-        expect(game.heldPiece).toEqual(new PieceBuilder().J());
-        expect(game.currentPiece).toEqual(new PieceBuilder().I());
+        expect(game.heldPiece).toEqual(PieceBuilder.buildFromTemplate(MinoType.J));
+        expect(game.currentPiece).toEqual(PieceBuilder.buildFromTemplate(MinoType.I));
         game.lockPiece();
         game.spawnPiece();
-        expect(game.currentPiece).toEqual(new PieceBuilder().T());
-        expect(game.heldPiece).toEqual(new PieceBuilder().J());
+        expect(game.currentPiece).toEqual(PieceBuilder.buildFromTemplate(MinoType.T));
+        expect(game.heldPiece).toEqual(PieceBuilder.buildFromTemplate(MinoType.J));
         game.hold();
-        expect(game.currentPiece).toEqual(new PieceBuilder().J());
-        expect(game.heldPiece).toEqual(new PieceBuilder().T());
+        expect(game.currentPiece).toEqual(PieceBuilder.buildFromTemplate(MinoType.J));
+        expect(game.heldPiece).toEqual(PieceBuilder.buildFromTemplate(MinoType.T));
         game.hold();
-        expect(game.currentPiece).toEqual(new PieceBuilder().T());
-        expect(game.heldPiece).toEqual(new PieceBuilder().J());
+        expect(game.currentPiece).toEqual(PieceBuilder.buildFromTemplate(MinoType.T));
+        expect(game.heldPiece).toEqual(PieceBuilder.buildFromTemplate(MinoType.J));
     });
 
     it("Rotates the piece", () => {

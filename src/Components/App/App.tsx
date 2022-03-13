@@ -6,20 +6,19 @@ import Options from '../MenuComponents/Options/Options';
 import Controls from '../MenuComponents/Controls/Controls';
 import MenuButton from '../MenuComponents/MenuButton/MenuButton';
 import { ControllerBuilder } from '../../jenkk/builders/controller-builder';
-import { Control } from '../../jenkk/controllers/controller';
 import { createTheme, ThemeProvider, responsiveFontSizes } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import cookie from 'react-cookies';
 
 const builder = new ControllerBuilder();
 const controlsCookie = cookie.load('controls', true);
-let controls: Map<string, Control> | undefined;
 
 if (controlsCookie) {
-  controls = ControllerBuilder.importControls(controlsCookie);
+  const controls = ControllerBuilder.importControls(controlsCookie);
+  builder.controls = controls;
 }
 
-const controller = builder.build(controls);
+const controller = builder.build();
 
 let theme = createTheme({
   palette: {

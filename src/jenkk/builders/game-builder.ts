@@ -1,55 +1,70 @@
+import { Generator } from "../generators/generator";
+import { Board } from "../board";
 import { Game } from "../controllers/game"
+import { Piece } from "../piece";
 import { Position } from "../position";
+import { RotationSystem } from "../rotationSystems/rotation-system";
 import { BoardBuilder } from "./board-builder";
 import { GeneratorBuilder } from "./generator-builder";
 import { RotationSystemBuilder } from "./rotation-system-builder";
 
 class GameBuilder {
 
-    test(): Game {
-        const boardBuilder = new BoardBuilder();
+    private _generator: Generator;
+    private _rotationSystem: RotationSystem;
+    private _board: Board;
+    private _spawnPosition: Position = new Position(4, 17);
+    private _numberOfPreviewPieces: number = 5;
+    private _currentPiece: Piece | undefined;
+    private _heldPiece: Piece | undefined;
+
+    constructor() {
         const generatorBuilder = new GeneratorBuilder();
+        this._generator = generatorBuilder.build();
         const rotationSystemBuilder = new RotationSystemBuilder();
-
-        const board = boardBuilder.empty(10, 20);
-        const generator = generatorBuilder.testSevenBag();
-        const rotationSystem = rotationSystemBuilder.superRotationSystem();
-        const spawnPos = new Position(4, 17);
-        const nbPreviewPieces = 5;
-
-        return new Game(
-            generator,
-            rotationSystem,
-            spawnPos,
-            nbPreviewPieces,
-            board,
-            undefined,
-            undefined
-        );
+        this._rotationSystem = rotationSystemBuilder.superRotationSystem();
+        const boardBuilder = new BoardBuilder();
+        this._board = boardBuilder.build();
     }
 
-    default(): Game {
+    public set generator(generator: Generator) {
+        this._generator = generator;
+    }
 
-        const boardBuilder = new BoardBuilder();
-        const generatorBuilder = new GeneratorBuilder();
-        const rotationSystemBuilder = new RotationSystemBuilder();
+    public set rotationSystem(rotationSystem: RotationSystem) {
+        this._rotationSystem = rotationSystem;
+    }
 
-        const board = boardBuilder.empty(10, 20);
-        const generator = generatorBuilder.sevenBag();
-        const rotationSystem = rotationSystemBuilder.superRotationSystem();
-        const spawnPos = new Position(4, 17);
-        const nbPreviewPieces = 5;
+    public set board(board: Board) {
+        this._board = board;
+    }
 
+    public set spawnPosition(spawnPosition: Position) {
+        this._spawnPosition = spawnPosition;
+    }
+
+    public set numberOfPreviewPieces(numberOfPreviewPieces: number) {
+        this._numberOfPreviewPieces = numberOfPreviewPieces;
+    }
+
+    public set currentPiece(currentPiece: Piece | undefined) {
+        this._currentPiece = currentPiece;
+    }
+
+    public set heldPiece(heldPiece: Piece | undefined) {
+        this._heldPiece = heldPiece;
+    }
+
+    build() {
         return new Game(
-            generator,
-            rotationSystem,
-            spawnPos,
-            nbPreviewPieces,
-            board,
-            undefined,
-            undefined
+            this._generator,
+            this._rotationSystem,
+            this._spawnPosition,
+            this._numberOfPreviewPieces,
+            this._board,
+            this._currentPiece,
+            this._heldPiece
         );
-
     }
 }
 
