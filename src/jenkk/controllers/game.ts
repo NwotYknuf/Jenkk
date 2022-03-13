@@ -6,6 +6,7 @@ import { Mino, MinoType } from "../mino";
 import { Generator } from "../generators/generator";
 import { CanReffil, canRefill } from "../generators/can-refill";
 import { Observable, Observer } from "../events/state";
+import { Memento } from "../Memento";
 
 enum MoveType {
     none,
@@ -19,7 +20,24 @@ type Clear = {
     linesCleared: number,
 }
 
-class Game {
+class GameSnapshot {
+    public generator: Generator;
+    public board: Board;
+    public currentPiece: Piece | undefined;
+    public heldPiece: Piece | undefined;
+    public currentPiecePosition: Position;
+
+    constructor(
+        generator: Generator, board: Board, currentPiece: Piece | undefined, heldPiece: Piece | undefined, currentPiecePosition: Position) {
+        this.generator = generator.clone();
+        this.board = board.clone();
+        this.currentPiece = currentPiece?.clone();
+        this.heldPiece = heldPiece?.clone();
+        this.currentPiecePosition = currentPiecePosition.clone();
+    }
+}
+
+class Game implements Memento<GameSnapshot> {
 
     private boardState: Observable<Board>;
     private queueState: Observable<Piece[]>;
@@ -264,6 +282,18 @@ class Game {
         }
     }
 
+    save(): GameSnapshot {
+        return new GameSnapshot(this.generator, this.board, this.currentPiece, this.heldPiece, this.currentPiecePosition);
+    }
+
+    restore(snapshot: GameSnapshot): void {
+        this.generator = snapshot.generator.clone();
+        this.board = snapshot.board.clone();
+        this.currentPiece = snapshot.currentPiece?.clone();
+        this.heldPiece = snapshot.heldPiece?.clone();
+        this.currentPiecePosition = snapshot.currentPiecePosition.clone();
+    }
+
 }
 
-export { Game, type Clear }
+export { Game, type Clear, GameSnapshot }

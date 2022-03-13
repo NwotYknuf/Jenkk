@@ -1,12 +1,13 @@
 import { BoardBuilder } from "../builders/board-builder";
 import { GeneratorBuilder } from "../builders/generator-builder";
+import { HasRNG, hasRNG } from "../generators/has-rng";
 import { RotationType } from "../rotationSystems/rotation-system";
 import { Command } from "./commands/command";
 import { HardDropCommand } from "./commands/hard-drop-command";
 import { HoldCommand } from "./commands/hold-command";
 import { MoveCommand } from "./commands/move-command";
 import { RotateCommand } from "./commands/rotate-command";
-import { Game } from "./game";
+import { Game, GameSnapshot } from "./game";
 
 enum Control {
     left = "left",
@@ -33,6 +34,7 @@ class Controller {
     private lastTick: number = Date.now();
     private pressedKeys: Map<Control, KeyStatus> = new Map<Control, KeyStatus>();
     private commandHistory: Command[] = [];
+    private initialState: GameSnapshot | undefined;
 
     constructor(private _game: Game, private controlsMap: Map<string, Control>, private _DAS: number, private _ARR: number, private _SDR: number) {
 
@@ -107,6 +109,7 @@ class Controller {
     }
 
     public init() {
+        this.initialState = this._game.save();
         this._game.refillQueue();
         this._game.spawnPiece();
         this._game.notifyObservers();
@@ -179,11 +182,21 @@ class Controller {
     }
 
     private reset(): void {
-        this.game.board = new BoardBuilder().empty(10, 20);
-        this.game.generator = new GeneratorBuilder().sevenBag();
-        this.game.currentPiece = undefined;
-        this.game.heldPiece = undefined;
-        this.init();
+        if (this.initialState) {
+            this._game.restore(this.initialState);
+            this.init();
+        }
+    }
+
+    private skip(): void {
+        if (this.initialState) {
+            this._game.restore(this.initialState);
+            if (hasRNG(this._game.generator)) {
+                const rngGen = this._game.generator as any as HasRNG;
+                this._game.generator = rngGen.cloneWithNewRNG();
+            }
+            this.init();
+        }
     }
 
     public update(): void {
@@ -277,6 +290,9 @@ class Controller {
         }
         if (this.getKeyDown(Control.reset)) {
             this.reset();
+        }
+        if (this.getKeyDown(Control.skip)) {
+            this.skip();
         }
 
         this.controlsMap.forEach((value) => {
