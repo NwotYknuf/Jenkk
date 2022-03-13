@@ -273,6 +273,7 @@ class Controller {
             command.execute()
         }
         if (this.getKeyDown(Control.hardDrop)) {
+            this.ARR_Charge = 0;
             const command = new HardDropCommand(this._game);
             command.execute();
             this.commandHistory.push(command);
