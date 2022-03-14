@@ -1,5 +1,6 @@
 import { Memento } from "./Memento";
 import { MinoType } from "./mino";
+import { Snapshot } from "./snapshot";
 
 /* 
  * A piece is represented by : 
@@ -32,10 +33,17 @@ type MinoPosition = {
     y: number
 }
 
-class PieceSnapshot {
+class PieceSnapshot implements Snapshot {
     public constructor(public centerShift: number, public rotation: RotationState, public type: MinoType, public shape: MinoPosition[]) {
         this.shape = Piece.copyShape(shape);
     }
+
+    public toJSON() {
+        return {
+            prototype: this.type
+        }
+    }
+
 }
 
 class Piece implements Memento<PieceSnapshot> {

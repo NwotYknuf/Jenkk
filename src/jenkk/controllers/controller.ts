@@ -32,7 +32,7 @@ class Controller {
     private lastTick: number = Date.now();
     private pressedKeys: Map<Control, KeyStatus> = new Map<Control, KeyStatus>();
     private commandHistory: Command[] = [];
-    private initialState: GameSnapshot | undefined;
+    private _initialState: GameSnapshot | undefined;
 
     constructor(private _game: Game, private controlsMap: Map<string, Control>, private _DAS: number, private _ARR: number, private _SDR: number) {
 
@@ -68,6 +68,11 @@ class Controller {
                 }
             }
         });
+    }
+
+    public set initialState(initialState: GameSnapshot) {
+        this._initialState = initialState;
+        this.skip();
     }
 
     public set DAS(das: number) {
@@ -107,9 +112,11 @@ class Controller {
     }
 
     public init() {
-        this.initialState = this._game.save();
+        this._initialState = this._game.save();
         this._game.refillQueue();
-        this._game.spawnPiece();
+        if (!this._game.currentPiece) {
+            this._game.spawnPiece();
+        }
         this._game.notifyObservers();
     }
 
@@ -180,15 +187,15 @@ class Controller {
     }
 
     private reset(): void {
-        if (this.initialState) {
-            this._game.restore(this.initialState);
+        if (this._initialState) {
+            this._game.restore(this._initialState);
             this.init();
         }
     }
 
     private skip(): void {
-        if (this.initialState) {
-            this._game.restore(this.initialState);
+        if (this._initialState) {
+            this._game.restore(this._initialState);
             if (hasRNG(this._game.generator)) {
                 const rngGen = this._game.generator as any as HasRNG;
                 this._game.generator = rngGen.cloneWithNewRNG();

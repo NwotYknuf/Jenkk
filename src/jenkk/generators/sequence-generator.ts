@@ -1,14 +1,21 @@
-import { Piece } from '../piece';
+import { GeneratorType } from '../builders/generator-builder';
 import { Generator, GeneratorSnapshot } from './generator';
+
+
+class SequenceGeneratorSnapshot extends GeneratorSnapshot {
+
+    public toJSON() {
+        return {
+            type: GeneratorType.Sequence,
+            queue: GeneratorSnapshot.snapshotQueue(this.queue)
+        }
+    }
+}
 
 /*
  * A generator that always spawns pieces in the same order
  */
 class SequenceGenerator extends Generator {
-
-    constructor(queue: Piece[]) {
-        super(queue);
-    }
 
     public clone(): Generator {
         const clonedQueue = Generator.cloneQueue(this.queue)
@@ -16,10 +23,10 @@ class SequenceGenerator extends Generator {
     }
 
     save(): GeneratorSnapshot {
-        return new GeneratorSnapshot(this.queue);
+        return new SequenceGeneratorSnapshot(this.queue);
     }
 
-    restore(snapshot: GeneratorSnapshot): void {
+    restore(snapshot: SequenceGeneratorSnapshot): void {
         this.queue = Generator.cloneQueue(snapshot.queue);
     }
 }

@@ -2,6 +2,13 @@ import { Memento } from "./Memento";
 
 class PositionSnapshot {
     public constructor(public x: number, public y: number) { }
+
+    public toJSON() {
+        return {
+            x: this.x,
+            y: this.y
+        }
+    }
 }
 
 class Position implements Memento<PositionSnapshot> {

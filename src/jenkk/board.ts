@@ -2,12 +2,28 @@ import { Memento } from './Memento';
 import { Mino, MinoType } from './mino';
 import { Piece } from './piece';
 import { Position } from './position';
+import { Snapshot } from './snapshot';
 
-class BoardSnapshot {
+class BoardSnapshot implements Snapshot {
     public minos: Mino[][];
 
     constructor(minos: Mino[][]) {
         this.minos = Board.copyMinos(minos);
+    }
+
+    public toJSON() {
+
+        const minos = this.minos.map((col) => {
+            return col.map((mino) => {
+                return mino.type
+            })
+        });
+
+        return {
+            width: this.minos.length,
+            height: this.minos[0].length,
+            minos: minos
+        }
     }
 }
 
@@ -28,15 +44,19 @@ class Board implements Memento<BoardSnapshot>{
         return this._minos;
     }
 
-    public get length() { return this.minos.length };
+    public get width() { return this.minos.length };
     public get height() { return this.minos[0].length };
 
     public setMino(x: number, y: number, mino: Mino): void {
         this.minos[x][y] = mino;
     }
 
+    public getMino(x: number, y: number): Mino {
+        return this.minos[x][y];
+    }
+
     public inBound(x: number, y: number): boolean {
-        if (x >= this.length || x < 0) {
+        if (x >= this.width || x < 0) {
             return false;
         }
         if (y >= this.height || y < 0) {
@@ -97,7 +117,7 @@ class Board implements Memento<BoardSnapshot>{
     public allClear(): boolean {
 
         for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.length; x++) {
+            for (let x = 0; x < this.width; x++) {
                 if (this.minos[x][y].type !== MinoType.empty) {
                     return false;
                 }

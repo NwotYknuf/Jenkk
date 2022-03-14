@@ -8,7 +8,7 @@ type MenuButtonProps = {
 
 function MenuButton(props: MenuButtonProps) {
     return <Box sx={{ pl: "10px", pr: "10px" }}>
-        <Button key="controls" variant="outlined" disableElevation onClick={props.onClick}>{props.text}</Button>
+        <Button variant="outlined" disableElevation onClick={props.onClick}>{props.text}</Button>
     </Box>
 }
 

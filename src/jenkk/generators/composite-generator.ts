@@ -2,6 +2,7 @@ import { Generator, GeneratorSnapshot } from "./generator";
 import { CanReffil, canRefill } from "./can-refill"
 import { hasRNG, HasRNG } from "./has-rng";
 import { Piece } from "../piece";
+import { GeneratorType } from "../builders/generator-builder";
 
 class CompositeGeneratorSnapshot extends GeneratorSnapshot {
 
@@ -10,6 +11,17 @@ class CompositeGeneratorSnapshot extends GeneratorSnapshot {
     constructor(queue: Piece[], generators: Generator[]) {
         super(queue);
         this.generators = CompositeGenerator.cloneGenerators(generators);
+    }
+
+    public toJSON() {
+        const generators = this.generators.map((generator) => {
+            return JSON.stringify(generator);
+        })
+        return {
+            type: GeneratorType.Composite,
+            bag: GeneratorSnapshot.snapshotQueue(this.queue),
+            generators
+        }
     }
 
 }

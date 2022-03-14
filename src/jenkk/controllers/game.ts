@@ -1,12 +1,14 @@
-import { Position } from "../position";
+import { Position, PositionSnapshot } from "../position";
 import { RotationSystem, RotationType } from "../rotationSystems/rotation-system";
-import { Board } from "../board";
-import { Piece, RotationState } from "../piece";
+import { Board, BoardSnapshot } from "../board";
+import { Piece, PieceSnapshot, RotationState } from "../piece";
 import { Mino, MinoType } from "../mino";
-import { Generator } from "../generators/generator";
+import { Generator, GeneratorSnapshot } from "../generators/generator";
 import { CanReffil, canRefill } from "../generators/can-refill";
 import { Observable, Observer } from "../events/state";
 import { Memento } from "../Memento";
+import { Snapshot } from "../snapshot";
+import { PieceBuilder } from "../builders/piece-builder";
 
 enum MoveType {
     none,
@@ -20,20 +22,39 @@ type Clear = {
     linesCleared: number,
 }
 
-class GameSnapshot {
-    public generator: Generator;
-    public board: Board;
-    public currentPiece: Piece | undefined;
-    public heldPiece: Piece | undefined;
-    public currentPiecePosition: Position;
+class GameSnapshot implements Snapshot {
+    public generator: GeneratorSnapshot;
+    public board: BoardSnapshot;
+    public currentPiece: PieceSnapshot | undefined;
+    public heldPiece: PieceSnapshot | undefined;
+    public currentPiecePosition: PositionSnapshot;
 
     constructor(
         generator: Generator, board: Board, currentPiece: Piece | undefined, heldPiece: Piece | undefined, currentPiecePosition: Position) {
-        this.generator = generator.clone();
-        this.board = board.clone();
-        this.currentPiece = currentPiece?.clone();
-        this.heldPiece = heldPiece?.clone();
-        this.currentPiecePosition = currentPiecePosition.clone();
+        this.generator = generator.save();
+        this.board = board.save();
+        this.currentPiece = currentPiece?.save();
+        this.heldPiece = heldPiece?.save();
+        this.currentPiecePosition = currentPiecePosition.save();
+    }
+
+    public toJSON() {
+        let currentPiece;
+        if (this.currentPiece) {
+            currentPiece = this.currentPiece.toJSON()
+        }
+
+        let heldPiece;
+        if (this.heldPiece) {
+            heldPiece = this.heldPiece.toJSON()
+        }
+
+        return {
+            generator: this.generator.toJSON(),
+            board: this.board.toJSON(),
+            currentPiece,
+            heldPiece
+        }
     }
 }
 
@@ -50,7 +71,7 @@ class Game implements Memento<GameSnapshot> {
     private tSpin: boolean = false;
 
     public constructor(
-        private _generator: Generator, private rotationSystem: RotationSystem, private spawPosition: Position, private nbPreviewPieces: number, _board: Board, currentPiece: Piece | undefined, heldPiece: Piece | undefined) {
+        private _generator: Generator, private rotationSystem: RotationSystem, private spawPosition: Position, private _nbPreviewPieces: number, _board: Board, currentPiece: Piece | undefined, heldPiece: Piece | undefined) {
         this.boardState = new Observable<(Board)>(_board, true);
         this.queueState = new Observable<Piece[]>([], true);
         this.currentPieceState = new Observable<Piece | undefined>(currentPiece, true);
@@ -120,8 +141,17 @@ class Game implements Memento<GameSnapshot> {
         this.currentPieceState.setValue(piece);
     }
 
+    public get nbPreviewPieces() {
+        return this._nbPreviewPieces;
+    }
+
+    public set nbPreviewPieces(nbPreviewPieces: number) {
+        this._nbPreviewPieces = nbPreviewPieces;
+        this.queueState.setValue(this.queue);
+    }
+
     public get queue() {
-        return this._generator.getPreview(this.nbPreviewPieces);
+        return this._generator.getPreview(this._nbPreviewPieces);
     }
 
     public get boardWithPiece(): Board {
@@ -183,7 +213,7 @@ class Game implements Memento<GameSnapshot> {
     public spawnPiece(): void {
         this.currentPiece = this._generator.spawnPiece();
         this.currentPiecePosition = this.spawPosition.clone();
-        this.queueState.setValue(this._generator.getPreview(this.nbPreviewPieces));
+        this.queueState.setValue(this._generator.getPreview(this._nbPreviewPieces));
     }
 
     public resetCurrentPiece(): void {
@@ -251,7 +281,7 @@ class Game implements Memento<GameSnapshot> {
 
         for (let y = this.board.height - 1; y >= 0; y--) {
             let lineFull = true;
-            for (let x = 0; x < this.board.length; x++) {
+            for (let x = 0; x < this.board.width; x++) {
                 if (this.board.minos[x][y].type === MinoType.empty) {
                     lineFull = false;
                     break;
@@ -261,7 +291,7 @@ class Game implements Memento<GameSnapshot> {
             if (lineFull) {
                 clearedLines++;
                 //pop the line and push a new line on top
-                for (let x = 0; x < this.board.length; x++) {
+                for (let x = 0; x < this.board.width; x++) {
                     this.board.minos[x].splice(y, 1);
                     this.board.minos[x].push(new Mino());
                 }
@@ -275,7 +305,7 @@ class Game implements Memento<GameSnapshot> {
     public refillQueue(): void {
         if (canRefill(this._generator)) {
             const gen = this._generator as unknown as CanReffil;
-            if (gen.shouldRefill(this.nbPreviewPieces)) {
+            if (gen.shouldRefill(this._nbPreviewPieces)) {
                 gen.refill();
                 this.queueState.setValue(this.queue);
             }
@@ -287,11 +317,49 @@ class Game implements Memento<GameSnapshot> {
     }
 
     restore(snapshot: GameSnapshot): void {
-        this.generator = snapshot.generator.clone();
-        this.board = snapshot.board.clone();
-        this.currentPiece = snapshot.currentPiece?.clone();
-        this.heldPiece = snapshot.heldPiece?.clone();
-        this.currentPiecePosition = snapshot.currentPiecePosition.clone();
+
+        const generator = this.generator;
+        generator.restore(snapshot.generator);
+        this.generator = generator;
+
+        const board = this.board;
+        board.restore(snapshot.board);
+        this.board = board;
+
+        if (snapshot.currentPiece) {
+
+
+            if (this.currentPiece) {
+                const piece = this.currentPiece;
+                piece.restore(snapshot.currentPiece);
+                this.currentPiece = piece;
+            }
+            else {
+                this.currentPiece = new PieceBuilder().build();
+                this.currentPiece.restore(snapshot.currentPiece);
+            }
+        } else {
+            this.currentPiece = undefined;
+        }
+
+        if (snapshot.heldPiece) {
+            if (this.heldPiece) {
+                const piece = this.heldPiece;
+                piece.restore(snapshot.heldPiece);
+                this.heldPiece = piece;
+            }
+            else {
+                this.heldPiece = new PieceBuilder().build();
+                this.heldPiece.restore(snapshot.heldPiece);
+            }
+        }
+        else {
+            this.heldPiece = undefined
+        }
+
+        const position = this.currentPiecePosition;
+        position.restore(snapshot.currentPiecePosition);
+        this.currentPiecePosition = position;
     }
 
 }

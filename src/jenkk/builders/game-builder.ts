@@ -7,6 +7,7 @@ import { RotationSystem } from "../rotationSystems/rotation-system";
 import { BoardBuilder } from "./board-builder";
 import { GeneratorBuilder } from "./generator-builder";
 import { RotationSystemBuilder } from "./rotation-system-builder";
+import { PieceBuilder } from "./piece-builder";
 
 class GameBuilder {
 
@@ -53,6 +54,29 @@ class GameBuilder {
 
     public set heldPiece(heldPiece: Piece | undefined) {
         this._heldPiece = heldPiece;
+    }
+
+    public loadJSON(json: any) {
+        if ("generator" in json) {
+            const builder = new GeneratorBuilder();
+            builder.loadJSON(json.generator);
+            this.generator = builder.build();
+        }
+        if ("board" in json) {
+            const builder = new BoardBuilder();
+            builder.loadJSON(json.board);
+            this.board = builder.build();
+        }
+        if ("currentPiece" in json) {
+            const builder = new PieceBuilder();
+            builder.loadJSON(json.currentPiece);
+            this.currentPiece = builder.build();
+        }
+        if ("heldPiece" in json) {
+            const builder = new PieceBuilder();
+            builder.loadJSON(json.heldPiece);
+            this.heldPiece = builder.build();
+        }
     }
 
     build() {

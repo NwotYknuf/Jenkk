@@ -1,3 +1,4 @@
+import { GeneratorType } from "../builders/generator-builder";
 import { Piece } from "../piece";
 import { CanReffil } from "./can-refill";
 import { Generator, GeneratorSnapshot } from "./generator"
@@ -13,6 +14,15 @@ class BagGeneratorSnapshot extends GeneratorSnapshot {
         this.bag = Generator.cloneQueue(bag);
         this.rng = rng.clone();
     }
+
+    public toJSON() {
+        return {
+            type: GeneratorType.Bag,
+            queue: GeneratorSnapshot.snapshotQueue(this.queue),
+            bag: GeneratorSnapshot.snapshotQueue(this.bag)
+        }
+    }
+
 }
 
 /*

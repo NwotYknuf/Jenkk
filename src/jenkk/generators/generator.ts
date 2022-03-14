@@ -1,10 +1,19 @@
 import { Memento } from '../Memento';
 import { Piece } from '../piece';
 
-class GeneratorSnapshot {
+abstract class GeneratorSnapshot {
     public queue: Piece[]
     constructor(queue: Piece[]) {
         this.queue = Generator.cloneQueue(queue);
+    }
+
+    abstract toJSON(): any;
+
+    public static snapshotQueue(queue: Piece[]) {
+
+        return queue.map((piece) => {
+            return piece.save().toJSON()
+        })
     }
 
 }

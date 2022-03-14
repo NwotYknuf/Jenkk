@@ -51,6 +51,37 @@ class GeneratorBuilder {
         this._generators = generators;
     }
 
+    loadJSON(json: any) {
+        if ("type" in json) {
+            this._type = json.type as GeneratorType;
+        }
+        if ("queue" in json) {
+            const queue = json.queue.map((piece: any) => {
+                const builder = new PieceBuilder();
+                builder.loadJSON(piece);
+                return builder.build();
+            });
+            this._queue = queue;
+        }
+        if ("bag" in json) {
+            const bag = json.bag.map((piece: any) => {
+                const builder = new PieceBuilder();
+                builder.loadJSON(piece);
+                return builder.build();
+            });
+            this._bag = bag;
+        }
+        if ("generators" in json) {
+            const generators = json.generators.map((generator: any) => {
+                const builder = new GeneratorBuilder();
+                builder.loadJSON(generator);
+                return builder.build();
+            });
+
+            this._generators = generators;
+        }
+    }
+
     build(): Generator {
         switch (this._type) {
             case GeneratorType.Sequence:
@@ -65,4 +96,4 @@ class GeneratorBuilder {
 
 }
 
-export { GeneratorBuilder }
+export { GeneratorBuilder, GeneratorType }

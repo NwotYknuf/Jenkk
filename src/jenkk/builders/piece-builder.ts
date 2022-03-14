@@ -1,16 +1,18 @@
-import { Mino, MinoType } from "../mino";
+import { MinoType } from "../mino";
 import { MinoPosition, Piece, RotationState } from "../piece";
 
 class PieceBuilder {
 
+    private _prototype: MinoType | undefined;
     private _centerShift: number = 0.5;
     private _rotationState = RotationState.flat;
     private _type: MinoType = MinoType.I;
     private _shape: MinoPosition[] = [{ x: -1.5, y: 0.5 }, { x: -0.5, y: 0.5 }, { x: 0.5, y: 0.5 }, { x: 1.5, y: 0.5 }];
 
-    constructor() { }
-
     build() {
+        if (this._prototype) {
+            return PieceBuilder.buildFromTemplate(this._prototype);
+        }
         return new Piece(this._centerShift, this._rotationState, this._type, this._shape);
     }
 
@@ -28,6 +30,12 @@ class PieceBuilder {
 
     public set shape(shape: MinoPosition[]) {
         this._shape = shape;
+    }
+
+    public loadJSON(json: any) {
+        if ("prototype" in json) {
+            this._prototype = MinoType[json.prototype as keyof typeof MinoType];
+        }
     }
 
     public static buildFromTemplate(type: MinoType): Piece {
