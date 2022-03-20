@@ -5,11 +5,11 @@ import { Generator, GeneratorSnapshot } from "./generator"
 import { HasRNG } from "./has-rng";
 import { LCG } from "./lcg";
 
-class BagGeneratorSnapshot extends GeneratorSnapshot {
+class InfiniteBagGeneratorSnapshot extends GeneratorSnapshot {
     public bag: Piece[];
     public rng: LCG;
 
-    constructor(queue: Piece[], bag: Piece[], rng: LCG, public hasRefilled: boolean) {
+    constructor(queue: Piece[], bag: Piece[], rng: LCG) {
         super(queue);
         this.bag = Generator.cloneQueue(bag);
         this.rng = rng.clone();
@@ -17,7 +17,7 @@ class BagGeneratorSnapshot extends GeneratorSnapshot {
 
     public toJSON() {
         return {
-            type: GeneratorType.Bag,
+            type: GeneratorType.InfiniteBag,
             queue: GeneratorSnapshot.snapshotQueue(this.queue),
             bag: GeneratorSnapshot.snapshotQueue(this.bag)
         }
@@ -25,49 +25,46 @@ class BagGeneratorSnapshot extends GeneratorSnapshot {
 
 }
 
-class BagGenerator extends Generator implements HasRNG, CanReffil {
+class InfiniteBagGenerator extends Generator implements CanReffil, HasRNG {
 
-    constructor(queue: Piece[], protected bag: Piece[], protected rng: LCG, protected hasRefilled: boolean) {
+    constructor(queue: Piece[], private bag: Piece[], private rng: LCG,) {
         super(queue);
     }
 
     public shouldRefill(nbPreviewPieces: number): boolean {
-        return !this.hasRefilled && this.queue.length < nbPreviewPieces;
+        return this.queue.length < nbPreviewPieces;
     }
-
     public canRefill(): boolean {
-        return !this.hasRefilled;
+        return true;
     }
 
     public refill(): void {
         const newPieces = Generator.cloneQueue(this.bag);
         newPieces.sort((a, b) => 0.5 - this.rng.getNext());
         this.queue.push(...newPieces);
-        this.hasRefilled = true;
     }
 
     public clone(): Generator {
         const queueClone = Generator.cloneQueue(this.queue);
         const bagClone = Generator.cloneQueue(this.bag);
-        return new BagGenerator(queueClone, bagClone, this.rng.clone(), this.hasRefilled);
+        return new InfiniteBagGenerator(queueClone, bagClone, this.rng.clone());
     }
 
     public cloneWithNewRNG(): Generator {
         const bagClone = Generator.cloneQueue(this.bag);
-        return new BagGenerator([], bagClone, new LCG(Date.now()), this.hasRefilled);
+        return new InfiniteBagGenerator([], bagClone, new LCG(Date.now()));
     }
 
     save(): GeneratorSnapshot {
-        return new BagGeneratorSnapshot(this.queue, this.bag, this.rng, this.hasRefilled);
+        return new InfiniteBagGeneratorSnapshot(this.queue, this.bag, this.rng);
     }
 
     restore(snapshot: GeneratorSnapshot): void {
-        const snapshotConverted = snapshot as BagGeneratorSnapshot;
+        const snapshotConverted = snapshot as InfiniteBagGeneratorSnapshot;
         this.queue = Generator.cloneQueue(snapshotConverted.queue);
         this.bag = Generator.cloneQueue(snapshotConverted.bag);
         this.rng = snapshotConverted.rng.clone();
-        this.hasRefilled = snapshotConverted.hasRefilled;
     }
 }
 
-export { BagGenerator }
+export { InfiniteBagGenerator }

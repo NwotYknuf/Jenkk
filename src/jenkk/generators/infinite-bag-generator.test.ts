@@ -1,10 +1,10 @@
 import { MinoType } from "../mino";
 import { Piece, RotationState } from "../piece";
 import { Generator } from "./generator";
-import { BagGenerator } from "./bag-generator";
+import { InfiniteBagGenerator } from "./infinite-bag-generator";
 import { LCG } from "./lcg";
 
-describe("Bag generator", () => {
+describe("Infinite Bag generator", () => {
 
     const first = new Piece(0, RotationState.flat, MinoType.J, [{ x: 0, y: 0 }]);
     const second = new Piece(0, RotationState.flat, MinoType.L, [{ x: 1, y: 1 }]);
@@ -12,11 +12,11 @@ describe("Bag generator", () => {
 
     const bag = [first, second, third];
 
-    let bagGenerator: BagGenerator;
+    let bagGenerator: InfiniteBagGenerator;
     const nbPreviewPieces = 3;
 
     beforeEach(() => {
-        bagGenerator = new BagGenerator([], Generator.cloneQueue(bag), new LCG(1));
+        bagGenerator = new InfiniteBagGenerator([], Generator.cloneQueue(bag), new LCG(1));
     })
 
     it("Can refill", () => {
@@ -46,12 +46,12 @@ describe("Bag generator", () => {
     })
 
     it("Can make a copy of itseld", () => {
-        const copy = bagGenerator.clone() as BagGenerator;
+        const copy = bagGenerator.clone() as InfiniteBagGenerator;
         expect(copy).toEqual(bagGenerator);
     })
 
     it("Can make a copy of itseld with a new rng", () => {
-        const copy = bagGenerator.cloneWithNewRNG() as BagGenerator;
+        const copy = bagGenerator.cloneWithNewRNG() as InfiniteBagGenerator;
         var { rng, ...bagGeneratorNoRNG } = bagGenerator as any;
         var { rng, ...copyNoRNG } = copy as any;
         expect(bagGeneratorNoRNG).toEqual(copyNoRNG);

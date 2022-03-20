@@ -15,7 +15,7 @@ class CompositeGeneratorSnapshot extends GeneratorSnapshot {
 
     public toJSON() {
         const generators = this.generators.map((generator) => {
-            return JSON.stringify(generator);
+            return generator.save();
         })
         return {
             type: GeneratorType.Composite,
@@ -36,13 +36,20 @@ class CompositeGenerator extends Generator implements CanReffil, HasRNG {
         return this.queue.length < nbPreviewPieces;
     }
 
+    public canRefill(): boolean {
+        return true;
+    }
+
     public refill(): void {
 
         this.generators.forEach((generator) => {
 
             if (canRefill(generator)) {
                 const refillableGenerator = generator as any as CanReffil;
-                refillableGenerator.refill();
+
+                if (refillableGenerator.canRefill()) {
+                    refillableGenerator.refill();
+                }
             }
 
             while (generator.canSpawnPiece()) {

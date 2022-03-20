@@ -1,15 +1,17 @@
 import { Generator } from "../generators/generator";
-import { BagGenerator } from "../generators/bag-generator";
+import { InfiniteBagGenerator } from "../generators/infinite-bag-generator";
 import { SequenceGenerator } from "../generators/sequence-generator";
 import { LCG } from "../generators/lcg";
 import { MinoType } from "../mino";
 import { Piece } from "../piece";
 import { PieceBuilder } from "./piece-builder"
 import { CompositeGenerator } from "../generators/composite-generator";
+import { BagGenerator } from "../generators/bag-generator";
 
 enum GeneratorType {
     Sequence = "Sequence",
     Bag = "Bag",
+    InfiniteBag = "InfiniteBag",
     Composite = "Composite"
 }
 
@@ -25,7 +27,7 @@ const sevenBag: Piece[] = [
 
 class GeneratorBuilder {
 
-    private _type: GeneratorType = GeneratorType.Bag;
+    private _type: GeneratorType = GeneratorType.InfiniteBag;
     private _queue: Piece[] = [];
     private _bag: Piece[] = sevenBag;
     private _rng: LCG = new LCG(1);
@@ -86,10 +88,12 @@ class GeneratorBuilder {
         switch (this._type) {
             case GeneratorType.Sequence:
                 return new SequenceGenerator(this._queue);
-            case GeneratorType.Bag:
-                return new BagGenerator(this._queue, this._bag, this._rng);
+            case GeneratorType.InfiniteBag:
+                return new InfiniteBagGenerator(this._queue, this._bag, this._rng);
             case GeneratorType.Composite:
                 return new CompositeGenerator(this._queue, this._generators);
+            case GeneratorType.Bag:
+                return new BagGenerator(this._queue, this._bag, this._rng, false);
         }
         throw new Error("Unknown generator type");
     }

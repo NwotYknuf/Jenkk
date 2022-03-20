@@ -34,40 +34,42 @@ class Controller {
     private commandHistory: Command[] = [];
     private _initialState: GameSnapshot | undefined;
 
+    private keyDown = (event: KeyboardEvent) => {
+        if (event.code && this.controlsMap.has(event.code)) {
+            event.preventDefault();
+            if (!event.repeat) {
+                const control = this.controlsMap.get(event.code);
+                if (control !== undefined) {
+                    let status = this.pressedKeys.get(control);
+                    if (status) {
+                        status.pressed = true;
+                        status.time = Date.now();
+                    }
+                }
+            }
+        }
+    }
+
+    private keyUp = (event: KeyboardEvent) => {
+        if (event.code && this.controlsMap.has(event.code)) {
+            event.preventDefault();
+            const control = this.controlsMap.get(event.code);
+            if (control !== undefined) {
+                let status = this.pressedKeys.get(control);
+                if (status) {
+                    status.pressed = false;
+                }
+            }
+        }
+    }
+
     constructor(private _game: Game, private controlsMap: Map<string, Control>, private _DAS: number, private _ARR: number, private _SDR: number) {
 
         this.controlsMap.forEach((value, key) => {
             this.pressedKeys.set(value, { pressed: false, pressedLastFrame: false, time: 0 });
         });
 
-        document.addEventListener('keydown', (event) => {
-            if (event.code && this.controlsMap.has(event.code)) {
-                event.preventDefault();
-                if (!event.repeat) {
-                    const control = this.controlsMap.get(event.code);
-                    if (control !== undefined) {
-                        let status = this.pressedKeys.get(control);
-                        if (status) {
-                            status.pressed = true;
-                            status.time = Date.now();
-                        }
-                    }
-                }
-            }
-        });
-
-        document.addEventListener('keyup', (event) => {
-            if (event.code && this.controlsMap.has(event.code)) {
-                event.preventDefault();
-                const control = this.controlsMap.get(event.code);
-                if (control !== undefined) {
-                    let status = this.pressedKeys.get(control);
-                    if (status) {
-                        status.pressed = false;
-                    }
-                }
-            }
-        });
+        this.addListeners();
     }
 
     public set initialState(initialState: GameSnapshot) {
@@ -111,7 +113,18 @@ class Controller {
         return this._game;
     }
 
+    public addListeners() {
+        document.addEventListener('keydown', this.keyDown);
+        document.addEventListener('keyup', this.keyUp);
+    }
+
+    public removeListeners() {
+        document.removeEventListener('keydown', this.keyDown);
+        document.removeEventListener('keyup', this.keyUp);
+    }
+
     public init() {
+        this.commandHistory = [];
         this._initialState = this._game.save();
         this._game.refillQueue();
         if (!this._game.currentPiece) {

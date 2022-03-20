@@ -9,6 +9,7 @@ import { Observable, Observer } from "../events/state";
 import { Memento } from "../Memento";
 import { Snapshot } from "../snapshot";
 import { PieceBuilder } from "../builders/piece-builder";
+import { GeneratorBuilder } from "../builders/generator-builder";
 
 enum MoveType {
     none,
@@ -318,17 +319,16 @@ class Game implements Memento<GameSnapshot> {
 
     restore(snapshot: GameSnapshot): void {
 
-        const generator = this.generator;
-        generator.restore(snapshot.generator);
-        this.generator = generator;
+        const generatorBuilder = new GeneratorBuilder();
+        generatorBuilder.loadJSON(snapshot.generator.toJSON());
+        this.generator = generatorBuilder.build();
+        this.generator.restore(snapshot.generator);
 
         const board = this.board;
         board.restore(snapshot.board);
         this.board = board;
 
         if (snapshot.currentPiece) {
-
-
             if (this.currentPiece) {
                 const piece = this.currentPiece;
                 piece.restore(snapshot.currentPiece);

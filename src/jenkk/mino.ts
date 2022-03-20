@@ -8,7 +8,8 @@ enum MinoType {
     O = "O",
     I = "I",
     T = "T",
-    ghost = "G"
+    ghost = "GH",
+    garbage = "GA"
 }
 
 class Mino {

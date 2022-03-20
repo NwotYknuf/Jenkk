@@ -74,10 +74,14 @@ function Game(props: GameProps) {
             clearTimeout(lastTimer);
         }
         if (!props.paused) {
+            controller.addListeners();
             const timer = setInterval(() => {
                 controller.update();
             }, 1)
             setLastTimer(timer);
+        }
+        else {
+            controller.removeListeners();
         }
         //Suppressing this warning since i don't want the effect to run when controller or lastTimer are updated
         // eslint-disable-next-line react-hooks/exhaustive-deps

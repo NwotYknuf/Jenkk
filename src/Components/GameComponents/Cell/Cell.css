@@ -38,6 +38,10 @@
     background-color: purple;
 }
 
+.garbage{
+    background-color: gray;
+}
+
 .ghost{
     background-color: black;
     box-sizing: border-box;

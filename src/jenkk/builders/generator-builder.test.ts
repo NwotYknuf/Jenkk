@@ -12,7 +12,7 @@ describe("Generator builder", () => {
     });
 
     it("Builds a generator from a json string", () => {
-        const jsonString = `{"type":"Bag","queue":[{"prototype":"I"},{"prototype":"T"},{"prototype":"S"},{"prototype":"L"},{"prototype":"O"},{"prototype":"Z"}],"bag":[{"prototype":"I"},{"prototype":"J"},{"prototype":"L"},{"prototype":"O"},{"prototype":"S"},{"prototype":"T"},{"prototype":"Z"}]}`;
+        const jsonString = `{"type":"Infinite Bag","queue":[{"prototype":"I"},{"prototype":"T"},{"prototype":"S"},{"prototype":"L"},{"prototype":"O"},{"prototype":"Z"}],"bag":[{"prototype":"I"},{"prototype":"J"},{"prototype":"L"},{"prototype":"O"},{"prototype":"S"},{"prototype":"T"},{"prototype":"Z"}]}`;
         const json = JSON.parse(jsonString);
         builder.loadJSON(json);
         const generator = builder.build();

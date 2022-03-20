@@ -11,7 +11,8 @@ const colors: Map<MinoType, string> = new Map<MinoType, string>([
     [MinoType.I, 'cyan'],
     [MinoType.O, 'yellow'],
     [MinoType.T, 'purple'],
-    [MinoType.ghost, 'ghost']
+    [MinoType.ghost, 'ghost'],
+    [MinoType.garbage, 'garbage'],
 ]);
 
 type CellProp = { mino: Mino };

@@ -11,6 +11,7 @@ import { CssBaseline } from '@mui/material';
 import { importControls, importOptions } from '../../cookies';
 import FilePicker from '../MenuComponents/FilePickerButton/FilePickerButton';
 import { GameBuilder } from '../../jenkk/builders/game-builder';
+import Editor from '../EditorComponents/Editor/Editor';
 
 const builder = new ControllerBuilder();
 const controls = importControls();
@@ -75,6 +76,7 @@ function App() {
     }
 
     if (window.File && window.FileReader && window.FileList && window.Blob) {
+      event.preventDefault();
       if (event.target.files) {
         const file = event.target.files[0];
         var reader = new FileReader();
@@ -99,12 +101,15 @@ function App() {
       [
         <MenuButton key="controls" onClick={setMenu("controls")} text={"Controls"} />,
         <MenuButton key="options" onClick={setMenu("options")} text={"Options"} />,
-        //<FilePicker key="load" onChange={load} text={"Load GameState"} />,
+        <FilePicker key="load" onChange={load} text={"Load GameState"} />,
+        <MenuButton key="editor" onClick={setMenu("editor")} text={"Editor"} />,
       ]
     } />
+
     <Game paused={paused()} display={displayGame()} controller={controller} />
     {displayMenu("controls") && <Controls controller={controller} />}
     {displayMenu("options") && <Options controller={controller} />}
+    {displayMenu("editor") && <Editor />}
   </ThemeProvider>;
 }
 

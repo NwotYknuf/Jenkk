@@ -1,6 +1,6 @@
 import { MinoType } from "../mino";
 import { Piece, RotationState } from "../piece";
-import { BagGenerator } from "./bag-generator";
+import { InfiniteBagGenerator } from "./infinite-bag-generator";
 import { CompositeGenerator } from "./composite-generator";
 import { Generator } from "./generator";
 import { hasRNG } from "./has-rng";
@@ -19,7 +19,7 @@ describe('Composite Generator', () => {
     beforeEach(() => {
         const genA = new SequenceGenerator(Generator.cloneQueue([first, second]));
         const genB = new SequenceGenerator(Generator.cloneQueue([third]));
-        const genC = new BagGenerator([], Generator.cloneQueue(bag), new LCG(1));
+        const genC = new InfiniteBagGenerator([], Generator.cloneQueue(bag), new LCG(1));
         generator = new CompositeGenerator([], [genA, genB, genC])
     });
 
