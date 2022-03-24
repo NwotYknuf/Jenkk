@@ -1,5 +1,5 @@
 import '../../GameComponents/Cell/Cell.css';
-import { Mino, MinoType } from '../../../jenkk/mino';
+import { Mino } from '../../../jenkk/mino';
 import Cell from '../../GameComponents/Cell/Cell';
 import useEditor from '../../../editor-store';
 
