@@ -108,19 +108,4 @@ describe("Game", () => {
         expect(game.board.minos[0][0].type).toBe(MinoType.empty)
     });
 
-    it("notifies observers", () => {
-        const func = jest.fn();
-        game.addBoardWatcher(func);
-        game.addClearWatcher(func);
-        game.addHeldWatcher(func);
-        game.addQueueWatcher(func);
-        game.refillQueue();
-        game.spawnPiece();
-        game.lockPiece();
-        game.clearLines();
-        game.hold();
-        game.notifyObservers();
-        expect(func).toBeCalledTimes(4);
-    })
-
 })

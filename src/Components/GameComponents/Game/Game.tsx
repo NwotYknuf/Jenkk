@@ -9,7 +9,7 @@ import { Board } from '../../../jenkk/board';
 import { Controller } from '../../../jenkk/controllers/controller';
 import { Position } from '../../../jenkk/position';
 import { MinoType } from '../../../jenkk/mino';
-import { Game as JenkkGame } from '../../../jenkk/controllers/game';
+import { ObservableGame as JenkkGame } from '../../../jenkk/controllers/observable-game';
 
 type GameProps = {
     paused: boolean,

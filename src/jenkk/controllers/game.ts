@@ -5,7 +5,6 @@ import { Piece, PieceSnapshot, RotationState } from "../piece";
 import { Mino, MinoType } from "../mino";
 import { Generator, GeneratorSnapshot } from "../generators/generator";
 import { CanReffil, canRefill } from "../generators/can-refill";
-import { Observable, Observer } from "../events/state";
 import { Memento } from "../Memento";
 import { Snapshot } from "../snapshot";
 import { PieceBuilder } from "../builders/piece-builder";
@@ -15,12 +14,6 @@ enum MoveType {
     none,
     movement,
     rotation
-}
-
-type Clear = {
-    tspin: boolean,
-    allClear: boolean,
-    linesCleared: number,
 }
 
 class GameSnapshot implements Snapshot {
@@ -61,52 +54,17 @@ class GameSnapshot implements Snapshot {
 
 class Game implements Memento<GameSnapshot> {
 
-    private boardState: Observable<Board>;
-    private queueState: Observable<Piece[]>;
-    private currentPieceState: Observable<Piece | undefined>;
-    private heldPieceState: Observable<Piece | undefined>;
-    private clearState: Observable<Clear>;
-    private currentPiecePositionState: Observable<Position>;
+    private _lastMove: MoveType = MoveType.none;
+    private _tSpin: boolean = false;
+    private _lastClear: number = 0;
 
-    private lastMove: MoveType = MoveType.none;
-    private tSpin: boolean = false;
+    private _currentPiecePosition: Position = this._spawPosition;
 
     public constructor(
-        private _generator: Generator, private rotationSystem: RotationSystem, private spawPosition: Position, private _nbPreviewPieces: number, _board: Board, currentPiece: Piece | undefined, heldPiece: Piece | undefined) {
-        this.boardState = new Observable<(Board)>(_board, true);
-        this.queueState = new Observable<Piece[]>([], true);
-        this.currentPieceState = new Observable<Piece | undefined>(currentPiece, true);
-        this.heldPieceState = new Observable<Piece | undefined>(heldPiece, true);
-        this.currentPiecePositionState = new Observable<Position>(this.spawPosition.clone(), true);
-        this.clearState = new Observable<Clear>({
-            allClear: false,
-            tspin: false,
-            linesCleared: 0
-        });
-    }
-
-    public addBoardWatcher(watcher: Observer<Board>) {
-        this.boardState.watch(watcher);
-    }
-
-    public addQueueWatcher(watcher: Observer<Piece[]>) {
-        this.queueState.watch(watcher);
-    }
-
-    public addHeldWatcher(watcher: Observer<Piece | undefined>) {
-        this.heldPieceState.watch(watcher);
-    }
-
-    public addCurrentPieceWatcher(watcher: Observer<Piece | undefined>) {
-        this.currentPieceState.watch(watcher);
-    }
-
-    public addCurrentPiecePosWatcher(watcher: Observer<Position>) {
-        this.currentPiecePositionState.watch(watcher);
-    }
-
-    public addClearWatcher(watcher: Observer<Clear>) {
-        this.clearState.watch(watcher);
+        private _generator: Generator, private _rotationSystem: RotationSystem,
+        private _spawPosition: Position, private _nbPreviewPieces: number,
+        private _board: Board, private _currentPiece: Piece | undefined,
+        private _heldPiece: Piece | undefined) {
     }
 
     public get generator(): Generator {
@@ -115,31 +73,30 @@ class Game implements Memento<GameSnapshot> {
 
     public set generator(generator: Generator) {
         this._generator = generator;
-        this.queueState.setValue(this.queue);
     }
 
     public get board(): Board {
-        return this.boardState.getValue();
+        return this._board;
     }
 
     public set board(board: Board) {
-        this.boardState.setValue(board);
+        this._board = board;
     }
 
     public get heldPiece(): Piece | undefined {
-        return this.heldPieceState.getValue();
+        return this._heldPiece
     }
 
     public set heldPiece(piece: Piece | undefined) {
-        this.heldPieceState.setValue(piece);
+        this._heldPiece = piece;
     }
 
     public get currentPiece(): Piece | undefined {
-        return this.currentPieceState.getValue();
+        return this._currentPiece;
     }
 
     public set currentPiece(piece: Piece | undefined) {
-        this.currentPieceState.setValue(piece);
+        this._currentPiece = piece;
     }
 
     public get nbPreviewPieces() {
@@ -148,11 +105,10 @@ class Game implements Memento<GameSnapshot> {
 
     public set nbPreviewPieces(nbPreviewPieces: number) {
         this._nbPreviewPieces = nbPreviewPieces;
-        this.queueState.setValue(this.queue);
     }
 
     public get queue() {
-        return this._generator.getPreview(this._nbPreviewPieces);
+        return this.generator.getPreview(this.nbPreviewPieces);
     }
 
     public get boardWithPiece(): Board {
@@ -163,20 +119,19 @@ class Game implements Memento<GameSnapshot> {
     }
 
     public get currentPiecePosition(): Position {
-        return this.currentPiecePositionState.getValue();
+        return this._currentPiecePosition
     }
 
     public set currentPiecePosition(pos: Position) {
-        this.currentPiecePositionState.setValue(pos);
+        this._currentPiecePosition = pos;
     }
 
-    public notifyObservers() {
-        this.boardState.notifyChange();
-        this.currentPiecePositionState.notifyChange();
-        this.currentPieceState.notifyChange();
-        this.heldPieceState.notifyChange();
-        this.queueState.notifyChange();
-        this.clearState.notifyChange();
+    public get tSpin(): boolean {
+        return this._tSpin;
+    }
+
+    public get lastClear(): number {
+        return this._lastClear;
     }
 
     public rotate(rotation: RotationType): boolean {
@@ -184,9 +139,9 @@ class Game implements Memento<GameSnapshot> {
             throw new Error("Tried to call rotate without a current piece");
         }
 
-        const rotated = this.rotationSystem.rotate(this, rotation);
+        const rotated = this._rotationSystem.rotate(this, rotation);
         if (rotated) {
-            this.lastMove = MoveType.rotation;
+            this._lastMove = MoveType.rotation;
         }
         return rotated;
     }
@@ -206,20 +161,19 @@ class Game implements Memento<GameSnapshot> {
             return false;
         }
         this.currentPiecePosition = newPos;
-        this.lastMove = MoveType.movement;
+        this._lastMove = MoveType.movement;
         return true;
 
     }
 
     public spawnPiece(): void {
-        this.currentPiece = this._generator.spawnPiece();
-        this.currentPiecePosition = this.spawPosition.clone();
-        this.queueState.setValue(this._generator.getPreview(this._nbPreviewPieces));
+        this.currentPiece = this.generator.spawnPiece();
+        this.currentPiecePosition = this._spawPosition.clone();
     }
 
     public resetCurrentPiece(): void {
 
-        this.currentPiecePosition = this.spawPosition.clone();
+        this.currentPiecePosition = this._spawPosition.clone();
 
         if (!this.currentPiece) {
             throw new Error("Tried to call resetCurrentPiece when current piece is undefined");
@@ -256,8 +210,8 @@ class Game implements Memento<GameSnapshot> {
 
     public lockPiece(): void {
         //check for tspin
-        this.tSpin = false;
-        if (this.currentPiece?.type === MinoType.T && this.lastMove === MoveType.rotation) {
+        this._tSpin = false;
+        if (this.currentPiece?.type === MinoType.T && this._lastMove === MoveType.rotation) {
             const corners = [{ x: 1, y: 1 }, { x: -1, y: 1 }, { x: -1, y: -1 }, { x: 1, y: -1 }];
             let occupiedCorners = 0;
             corners.forEach((corner) => {
@@ -270,7 +224,7 @@ class Game implements Memento<GameSnapshot> {
                     occupiedCorners += 1;
                 }
             });
-            this.tSpin = occupiedCorners > 2;
+            this._tSpin = occupiedCorners > 2;
         }
 
         this.board = this.boardWithPiece;
@@ -299,16 +253,14 @@ class Game implements Memento<GameSnapshot> {
             }
         }
 
-        this.clearState.setValue({ tspin: this.tSpin, allClear: this.board.allClear(), linesCleared: clearedLines });
-
+        this._lastClear = clearedLines;
     }
 
     public refillQueue(): void {
-        if (canRefill(this._generator)) {
-            const gen = this._generator as unknown as CanReffil;
-            if (gen.shouldRefill(this._nbPreviewPieces)) {
+        if (canRefill(this.generator)) {
+            const gen = this.generator as unknown as CanReffil;
+            if (gen.shouldRefill(this.nbPreviewPieces)) {
                 gen.refill();
-                this.queueState.setValue(this.queue);
             }
         }
     }
@@ -364,4 +316,4 @@ class Game implements Memento<GameSnapshot> {
 
 }
 
-export { Game, type Clear, GameSnapshot }
+export { Game, GameSnapshot }

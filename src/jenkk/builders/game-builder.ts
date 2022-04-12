@@ -8,6 +8,7 @@ import { BoardBuilder } from "./board-builder";
 import { GeneratorBuilder } from "./generator-builder";
 import { RotationSystemBuilder } from "./rotation-system-builder";
 import { PieceBuilder } from "./piece-builder";
+import { ObservableGame } from "../controllers/observable-game";
 
 class GameBuilder {
 
@@ -80,7 +81,7 @@ class GameBuilder {
     }
 
     build() {
-        return new Game(
+        return new ObservableGame(
             this._generator,
             this._rotationSystem,
             this._spawnPosition,

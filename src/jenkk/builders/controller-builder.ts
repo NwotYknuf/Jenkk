@@ -1,6 +1,6 @@
 import { Board } from "../board";
 import { Control, Controller } from "../controllers/controller";
-import { Clear, Game } from "../controllers/game";
+import { Clear, ObservableGame } from "../controllers/observable-game";
 import { Observer } from "../events/state";
 import { Piece } from "../piece";
 import { GameBuilder } from "./game-builder";
@@ -48,7 +48,7 @@ class ControllerBuilder {
     private _listeners: Listeners = {
         board: [], queue: [], held: [], current: [], currentPos: [], clear: []
     }
-    private _game: Game;
+    private _game: ObservableGame;
 
     constructor() {
         const gameBuilder = new GameBuilder();
@@ -67,7 +67,7 @@ class ControllerBuilder {
         this._listeners = listeners;
     }
 
-    public set game(game: Game) {
+    public set game(game: ObservableGame) {
         this._game = game;
     }
 

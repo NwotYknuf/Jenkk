@@ -5,7 +5,8 @@ import { HardDropCommand } from "./commands/hard-drop-command";
 import { HoldCommand } from "./commands/hold-command";
 import { MoveCommand } from "./commands/move-command";
 import { RotateCommand } from "./commands/rotate-command";
-import { Game, GameSnapshot } from "./game";
+import { GameSnapshot } from "./game";
+import { ObservableGame } from "./observable-game";
 
 enum Control {
     left = "left",
@@ -63,7 +64,7 @@ class Controller {
         }
     }
 
-    constructor(private _game: Game, private controlsMap: Map<string, Control>, private _DAS: number, private _ARR: number, private _SDR: number) {
+    constructor(private _game: ObservableGame, private controlsMap: Map<string, Control>, private _DAS: number, private _ARR: number, private _SDR: number) {
 
         this.controlsMap.forEach((value, key) => {
             this.pressedKeys.set(value, { pressed: false, pressedLastFrame: false, time: 0 });
