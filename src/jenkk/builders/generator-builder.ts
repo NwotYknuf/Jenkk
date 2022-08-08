@@ -94,8 +94,10 @@ class GeneratorBuilder {
                 return new CompositeGenerator(this._queue, this._generators);
             case GeneratorType.Bag:
                 return new BagGenerator(this._queue, this._bag, this._rng, false);
+            default:
+                throw new Error(`Unknown generator type ${this._type}`);
         }
-        throw new Error("Unknown generator type");
+
     }
 
 }
